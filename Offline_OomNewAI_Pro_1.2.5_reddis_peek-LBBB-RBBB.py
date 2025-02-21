@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import random
+import random, 
 from paho.mqtt import client as mqtt_client
 import traceback
 import ast
@@ -13,10 +13,7 @@ from sewar.full_ref import mse, rmse, ergas,  rase, sam
 from scipy.integrate import trapz
 from dateutil import parser
 from scipy.interpolate import interp1d
-##import matplotlib
-##matplotlib.use('module://thread')
 import matplotlib
-##matplotlib.use('Cairo')
 matplotlib.use('agg')
 from matplotlib import colormaps
 import matplotlib.pyplot as plt
@@ -26,8 +23,6 @@ import pandas as pd
 from tensorflow.keras import backend as K
 import ssl
 import numpy as np
-import random
-from scipy.signal import medfilt
 from scipy.stats import pearsonr
 from scipy import sparse, signal
 from scipy.sparse.linalg import spsolve
@@ -35,74 +30,46 @@ from statistics import pvariance,mode
 import threading
 import pymongo
 import statistics
-import matplotlib.pyplot as plt
 import scipy.fftpack
 import warnings
 warnings.filterwarnings('ignore')
 import scipy.signal as signal
 import os
-import pandas
 from math import sqrt
-import numpy as np
 import datetime
 import dns.resolver
 dns.resolver.default_resolver = dns.resolver.Resolver(configure=False)
 dns.resolver.default_resolver.nameservers=['1.1.1.1']
-import math
 from scipy.ndimage import label
 import json
 import neurokit2 as nk
 import seaborn as sns
-
-# signal processing
 import scipy.signal
 import scipy.ndimage
 from scipy import signal
-from scipy.ndimage import label
 import cv2
 import shutil
-import os
-from scipy import sparse
-from scipy.sparse.linalg import spsolve
 from sklearn.preprocessing import MinMaxScaler
-
-# from ecgdetectors import Detectors
-import matplotlib.pyplot as plt
 import glob
-from statistics import pvariance
-from scipy.stats import pearsonr
 from scipy.signal import savgol_filter
 from BaselineRemoval import BaselineRemoval
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import glob
-from scipy.stats import pearsonr
 from scipy import  signal
-from statistics import pvariance
 import tensorflow as tf
 import concurrent.futures
 import biosppy
 import pywt
 import pywt as pw
-from scipy import signal
 from pywt import wavedec
-from scipy.stats import pearsonr
-from scipy import sparse, signal
-from scipy.sparse.linalg import spsolve
-from statistics import pvariance
 import pybeads as be
 import scipy.stats as stats
 from PIL import Image
-from sklearn.preprocessing import MinMaxScaler
 import tools as st
 import utils
 import uuid
-
-#MI dependancy
 from biosppy.signals import ecg as hami
 from collections import Counter
 from scipy.signal import butter, filtfilt
+
 os.environ['CUDA_VISIBLE_DEVICES'] = ''
 gpus = tf.config.experimental.list_physical_devices('GPU')
 if gpus:
@@ -121,55 +88,19 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 executor = concurrent.futures.ThreadPoolExecutor(max_workers=100)
 
 #Database Connection
-##myclient = pymongo.MongoClient("mongodb://hopsadmin:fN6ZPg02713u8X9l@139.59.75.40:27017/ecgs1?authSource=admin&retryWrites=true&w=majority")
 myclient = pymongo.MongoClient("mongodb://localhost:27017")
 mydb = myclient["test"]
     
-#MQTT Topics
-
-##topic_x = "oom/mqtt1"
-##topic_y = "oom/1"
-##topic_x = "oom/ecg/rawData"
+# mqtt topic
 topic_y = "oom/ecg/processedDataOffline"
-##
-
 
 #MQTT Credentials
-####
-##broker = 'oomcardiotest.projectkmt.com'
-##port = 8883
-##client_id = f'{random.randint(1000000000, 2000000000)}'
-##username = 'kmt'
-##password = 'dVBbS3NxMtmzD438'
-
 broker = 'mqtt.oomcardio.com'
 port = 8883
 client_id = f'{random.randint(1000000000, 2000000000)}'
 username = 'ranchodrai'
 password = 'eSyk1b07B0x942R1cA0oc4cu'
 
-
-#class RedisQueue:
-#    def __init__(self, name, redis_conn):
-#        self.name = name
-#        self.redis = redis_conn
-#
-#    def push(self, item):
-#        self.redis.lpush(self.name, json.dumps(item))
-#
-#    def peek(self):
-#        item = self.redis.lindex(self.name, -1)  # Peek at the last item (FIFO)
-#        return json.loads(item) if item is not None else None
-#
-#    def pop(self):
-#        item = self.redis.rpop(self.name)
-#        return json.loads(item) if item is not None else None
-#
-#    def size(self):
-#        return self.redis.llen(self.name)
-#
-#    def is_empty(self):
-#        return self.size() == 0
 class RedisQueue:
     def __init__(self, name, redis_conn):
         self.name = name
@@ -242,13 +173,10 @@ class RedisQueue:
 
 
 redis_conn = redis.StrictRedis(host='localhost', port=6379, db=0)
-##print(redis_conn)
 # Create a queue instance
 queue = RedisQueue('liveOfflinechannel', redis_conn)
 
 #AI Detectron to Detect PVC Curve
-
-
 results_lock = threading.RLock()
 
 def predict_tflite_model(model:tuple, input_data:tuple):
@@ -275,7 +203,7 @@ os.makedirs(folder_path)
 
 
 # Load the TFLite model
-interpreterss = tf.lite.Interpreter(model_path='PVC_Trans_mob_35_test_tiny_iter1.tflite')
+interpreterss = tf.lite.Interpreter(model_path='PVC_Trans_mob_41_test_tiny_iter1.tflite')
 interpreterss.allocate_tensors()
 
 # Get the input and output details
@@ -291,14 +219,11 @@ output_details_noise = interpreter_noise.get_output_details()
 
 with tf.device('/CPU:0'):
     # tf_cwt_model = load_tflite_model("JR_model_20_09_0_two_different_inputs.tflite")
-    afib_load_model = load_tflite_model("afib_flutter_15_9.tflite")
+    afib_load_model = load_tflite_model("afib_flutter_17_1.tflite")
     vfib_vfl_model = load_tflite_model("VFIB_Model_07JUN2024_1038.tflite")
-    pac_load_model = load_tflite_model("PAC_TRANS_GRU_mob_18.tflite")
-    block_load_model = load_tflite_model("Block_tran_2.tflite")
+    pac_load_model = load_tflite_model("PAC_TRANS_GRU_mob_24.tflite")
+    block_load_model = load_tflite_model("Block_convex_2.tflite")
     let_inf_moedel = load_tflite_model("ST_21_10.tflite")
-
-ref_files = "200_standard.csv"
-ref_file  = pd.read_csv(ref_files)["ECG"][:2000]
 
 def prediction_model_PAC(input_arr, target_shape=[224, 224], class_name=True):
     classes = ['Abnormal', 'Junctional', 'Normal', 'PAC']
@@ -330,65 +255,6 @@ def baseline_construction_200(ecg_signal, kernel_size=101):
     baseline_corrected = s_corrected - signal.medfilt(s_corrected, kernel_size)
     return baseline_corrected
 
-def lowpass_4(baseline_signal, cutoff=0.3):
-    b, a = signal.butter(3, cutoff, btype='lowpass', analog=False)
-    low_passed = signal.filtfilt(b, a, baseline_signal)
-    return low_passed
-
-
-def find_r_peak_mi(ecg_signal, fs):
-    lowcut = 0.5
-    highcut = 50.0
-    filtered_signal = butter_bandpass_filter(ecg_signal, lowcut, highcut, fs, order=6)
-    # Step 3: R-Peak Detection
-    out = hami.hamilton_segmenter(filtered_signal, sampling_rate=fs)
-    rpeaks = hami.correct_rpeaks(filtered_signal, out[0], sampling_rate=fs, tol=0.1)
-    r_peaks = rpeaks[0].tolist()
-    return r_peaks
-
-def mi_detection(baseline_signal,ecg_signal, r_peaks, fs):
-    try:
-        _, waves_peak = nk.ecg_delineate(baseline_signal, r_peaks, sampling_rate=fs, method="peak")
-
-        Speaks = np.where(np.isnan(waves_peak['ECG_S_Peaks']), 0, waves_peak['ECG_S_Peaks']).astype('int64').tolist()
-        Tpeaks = np.where(np.isnan(waves_peak['ECG_T_Peaks']), 0, waves_peak['ECG_T_Peaks']).astype('int64').tolist()
-        
-    except:
-        label ="Abnormal"
-##        print("<<<<<<<<<<<<<<<<<<<<<<<<< something wrong >>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-        return label
-
-    mi_counter = 0  # Counter for MI detections
-    for r_peak, t_peak in zip(r_peaks, Tpeaks):
-        mid_value = (baseline_signal[r_peak] + baseline_signal[Speaks[Tpeaks.index(t_peak)]]) / 2  # Calculate mid value
-        
-        if baseline_signal[t_peak] > mid_value: # Compare T peak to mid value
-            mi_counter += 1
-    
-    mi_percentage = (mi_counter / len(r_peaks)) * 100
-    
-    anterior = []
-    posterior = []
-    if mi_percentage >= 52:
-        for i in range(len(r_peaks)-1):
-            area = trapz(baseline_signal[r_peaks[i]:Tpeaks[i]+1])
-            if round(area, 2) < 12:
-                anterior.append(round(area,2))
-            elif  12 <= round(area, 2) <= 30:
-                posterior.append(round(area, 2))
-
-    
-    anterior_per = (len(anterior)/len(r_peaks))*100
-    posterior_per = (len(posterior)/len(r_peaks))*100
-    if posterior_per >= 70:
-        label = "Posterior STEMI"
-    elif anterior_per >= 70:
-        label = "Anterior STEMI"
-    else:
-        label = "Abnormal"
-    return label
-
-
 def prediction_model(image_path, target_shape=[224, 224], class_name=True):
     with results_lock:
         classes = ['LBBB', 'Noise', 'Normal', 'PVC', 'RBBB']
@@ -410,160 +276,6 @@ def prediction_model(image_path, target_shape=[224, 224], class_name=True):
         return output_data[0], classes[idx]
     else:
         return output_data[0]
-##def prediction_model(image_path, target_shape=[224, 224], class_name=True):
-##    with results_lock:
-##        classes = ['Noise', 'Normal', 'PVC']
-##        image = tf.io.read_file(image_path)
-##        input_arr = tf.image.decode_jpeg(image, channels=3)
-##        input_arr = tf.image.resize(input_arr, size=target_shape, method=tf.image.ResizeMethod.BILINEAR)
-##        input_arr = tf.expand_dims(input_arr, axis=0)
-##
-##        # Set the input tensor
-##        interpreterss.set_tensor(input_detailss[0]['index'], input_arr)
-##        
-##        # Perform inference
-##        interpreterss.invoke()
-##        # Get the output tensor
-##        output_data = interpreterss.get_tensor(output_detailss[0]['index'])
-##
-##    if class_name:
-##        idx = np.argmax(output_data[0])
-##        return output_data[0], classes[idx]
-##    else:
-##        return output_data[0]
-
-##def prediction_model(image_path, target_shape=[224, 224], class_name=True):
-##    with results_lock:
-##        classes = ['Noise', 'Normal', 'PVC']
-##        image = tf.io.read_file(image_path)
-##        input_arr = tf.image.decode_image(image, channels=3)
-##        input_arr = tf.image.resize(input_arr, size=target_shape)
-##        input_arr = tf.expand_dims(input_arr, axis=0)
-##        
-##        if class_name:
-##            model = load_model(input_arr)
-##            idx = np.argmax(model[0])
-##            return model[0], classes[idx]
-##    
-##    return load_model(input_arr)[0], None
-
-##def vfib_model_pred(raw_signal, baseline_signal, lowpass_signal, model, fs):
-##    steps_data = int(fs*2.5)
-##    total_data = lowpass_signal.shape[0]
-##    start = 0
-##    normal, vfib_vflutter, asys, noise = [], [], [], []
-##    percentage = {'NORMAL':0, 'VFIB-VFLUTTER':0, 'ASYS':0, 'NOISE':0}
-##    model_prediction = []
-##    while start < total_data:
-##        end = start+steps_data
-##        if end - start == steps_data and end < total_data:
-##            raw, bas, low = raw_signal[start:end], baseline_signal[start:end], lowpass_signal[start:end]
-##            if raw.any() and bas.any() and low.any():
-##                raw = image_array_new(raw_signal[start:end])
-##                bas = image_array_new(baseline_signal[start:end])
-##                low = image_array_new(lowpass_signal[start:end])
-##            else:
-##                raw = bas = low = np.array([])
-##        else:
-##            raw, bas, low = raw_signal[start:end], baseline_signal[start:end], lowpass_signal[start:end]
-##            if raw.any() and bas.any() and low.any():
-##                raw = image_array_new(raw_signal[-steps_data:total_data])
-##                bas = image_array_new(baseline_signal[-steps_data:total_data])
-##                low = image_array_new(lowpass_signal[-steps_data:total_data])
-##                end = total_data - 1
-##            else:
-##                raw = bas = low = np.array([])
-##        if raw.any() and bas.any() and low.any():
-##            image_data = (tf.expand_dims(raw, axis=0), tf.expand_dims(bas, axis=0), tf.expand_dims(low, axis=0))
-##            image_data = (tf.cast(image_data[0],dtype=tf.float32), tf.cast(image_data[1],dtype=tf.float32), tf.cast(image_data[2],dtype=tf.float32))
-##            model_pred = predict_tflite_model(model, image_data)[0]
-####            model_pred = model(image_data, training=False)[0]
-##            K.clear_session()
-##            label = np.argmax(model_pred)
-##            model_prediction.append(f'{(start, end)}={model_pred}')
-##            if label == 0: normal.append(((start, end), model_pred)); percentage['NORMAL'] += (end-start)/total_data
-##            elif label == 1: vfib_vflutter.append(((start, end), model_pred)); percentage['VFIB-VFLUTTER'] += (end-start)/total_data
-##            elif label == 2: asys.append(((start, end), model_pred)); percentage['ASYS'] += (end-start)/total_data
-##            else: noise.append(((start, end), model_pred)); percentage['NOISE'] += (end-start)/total_data
-##        start = start+steps_data
-##    return normal, vfib_vflutter, asys, noise, model_prediction, percentage
-##
-##def vfib_signal_model_pred(lowpass_signal, model, fs):
-##    steps_data = int(fs*2.5)
-##    total_data = lowpass_signal.shape[0]
-##    start = 0
-##    normal, vfib_vflutter, asys, noise = [], [], [], []
-##    model_prediction = []
-##    percentage = {'NORMAL':0, 'VFIB-VFLUTTER':0, 'ASYS':0, 'NOISE':0}
-##    while start < total_data:
-##        end = start+steps_data
-##        if end - start == steps_data and end < total_data:
-##            # raw = image_array_new(raw_signal[start:end])
-##            # bas = image_array_new(baseline_signal[start:end])
-##            low = image_array_new(lowpass_signal[start:end])
-##        else:
-##            # raw = image_array_new(raw_signal[-steps_data:total_data])
-##            # bas = image_array_new(baseline_signal[-steps_data:total_data])
-##            low = image_array_new(lowpass_signal[-steps_data:total_data])
-##            end = total_data - 1
-##            
-##        # image_data = (np.expand_dims(raw, axis=0), np.expand_dims(bas, axis=0), np.expand_dims(low, axis=0))
-##        image_data = tf.expand_dims(low, axis=0)
-##        model_pred = model(image_data, training=False)[0]
-##        K.clear_session()
-##        label = np.argmax(model_pred)
-##        model_prediction.append(f'{(start, end)}={model_pred}')
-##        if label == 0: normal.append(((start, end), model_pred)); percentage['NORMAL'] += (end-start)/total_data
-##        elif label == 1: vfib_vflutter.append(((start, end), model_pred)); percentage['VFIB-VFLUTTER'] += (end-start)/total_data
-##        elif label == 2: asys.append(((start, end), model_pred)); percentage['ASYS'] += (end-start)/total_data
-##        else: noise.append(((start, end), model_pred)); percentage['NOISE'] += (end-start)/total_data
-##        start = start+steps_data
-##    return normal, vfib_vflutter, asys, noise, model_prediction, percentage
-##
-##def vfib_model_check(ecg_signal, model, fs):
-##    
-##    if fs != 200:
-##        ecg_signal = MinMaxScaler(feature_range=(0,4)).fit_transform(ecg_signal.reshape(-1,1)).squeeze()
-##    if fs == 200:
-##        baseline_signal = baseline_construction_200(ecg_signal, 101)
-####    elif fs == 250:
-####        baseline_signal = baseline_reconstruction_250(ecg_signal, 131)
-####    elif fs == 360:
-####        baseline_signal = baseline_construction_200(ecg_signal, 151)
-####    elif fs == 1000:
-####        baseline_signal = baseline_construction_200(ecg_signal, 399)
-##    else:
-##        baseline_signal = baseline_construction_200(ecg_signal, 101)
-##    
-##    lowpass_signal = lowpass(baseline_signal, 0.3)
-##    
-##    normal, vfib_vflutter, asys, noise, model_prediction, percentage = vfib_model_pred(ecg_signal, baseline_signal, lowpass_signal, model, fs)
-##    # normal, vfib_vflutter, asys, noise, model_prediction, percentage = vfib_signal_model_pred(lowpass_signal, model, fs)
-##    
-##    # normal_per = len(normal) / len(model_prediction)
-##    # vfib_vflutter_per = len(vfib_vflutter) / len(model_prediction)
-##    # asys_per = len(asys) / len(model_prediction)
-##    # noise_per = len(noise) / len(model_prediction)
-##    
-##    # final_label_index = np.argmax([normal_per, vfib_vflutter_per, asys_per, noise_per])
-##    final_label_index = np.argmax([percentage['NORMAL'], percentage['VFIB-VFLUTTER'],
-##                             percentage['ASYS'], percentage['NOISE']])
-##    
-##    if final_label_index == 0:
-##        final_label = 'Normal'
-##        percentage = percentage['NORMAL']
-##    elif final_label_index == 1:
-##        final_label = 'VFIB/Vflutter'
-##        percentage = percentage['VFIB-VFLUTTER']
-##    elif final_label_index == 2:
-##        final_label = 'ASYS'
-##        percentage = percentage['ASYS']
-##    else:
-##        final_label = 'Noise'
-##        percentage = percentage['NOISE']
-##    
-##    return final_label, percentage, (normal, vfib_vflutter, asys, noise, model_prediction)
-
 
 def resampled_ecg_data(ecg_signal, original_freq, desire_freq):
     original_time = np.arange(len(ecg_signal)) / original_freq
@@ -596,7 +308,6 @@ def image_array_news_vfib(signal):
     return rotated_image.astype(np.uint8)
 
 def vfib_model_pred_tfite(raw_signal, model, fs):
-##    if fs == 200 and (np.max(raw_signal) > 4.1 or np.min(raw_signal) < 0):
     raw_signal = MinMaxScaler(feature_range=(0,4)).fit_transform(raw_signal.reshape(-1,1)).squeeze()
     seconds = 2.5
     steps_data = int(fs*seconds)
@@ -626,8 +337,6 @@ def vfib_model_pred_tfite(raw_signal, model, fs):
             rs_raw = resampled_ecg_data(_raw_s_, fs, 500/seconds)
             if rs_raw.shape[0] != 500:
                 rs_raw = signal.resample(rs_raw, 500)
-##            image_data = (tf.expand_dims(raw, axis=0), tf.constant(rs_raw.reshape(1, -1, 1).astype(np.float32)))
-            # image_data = (tf.cast(image_data[0],dtype=tf.float32), )
             image_data = (tf.expand_dims(raw, axis=0),)
             model_pred = predict_tflite_model(model, image_data)[0]
             label = np.argmax(model_pred)
@@ -640,7 +349,6 @@ def vfib_model_pred_tfite(raw_signal, model, fs):
     
     return normal, vfib_vflutter, asys, noise, model_prediction, percentage
 
-##@time_wrapper
 def vfib_model_check_new(ecg_signal, model, fs):
     normal, vfib_vflutter, asys, noise, model_prediction, percentage = vfib_model_pred_tfite(ecg_signal, model, fs)
     
@@ -776,8 +484,6 @@ def get_median_filter_width(sampling_rate, duration):
     return res
 
 BASIC_SRATE= 500
-# baseline fitting by filtering
-# === Define Filtering Params for Baseline fitting Leads======================
 ms_flt_array = [0.2,0.6]    #<-- length of baseline fitting filters (in seconds)
 mfa = np.zeros(len(ms_flt_array), dtype='int')
 for i in range(0, len(ms_flt_array)):
@@ -791,16 +497,6 @@ def filter_signal(X):
     X0 = np.subtract(X,X0)  # finally subtract from orignal signal
     return X0
 
-def denoise_signal(X, dwt_transform, dlevels, cutoff_low, cutoff_high):
-    coeffs = wavedec(X, dwt_transform, level=dlevels)   # wavelet transform 'bior4.4'
-    # scale 0 to cutoff_low 
-    for ca in range(0,cutoff_low):
-        coeffs[ca]=np.multiply(coeffs[ca],[0.0])
-    # scale cutoff_high to end
-    for ca in range(cutoff_high, len(coeffs)):
-        coeffs[ca]=np.multiply(coeffs[ca],[0.0])
-    Y = pywt.waverec(coeffs, dwt_transform) # inverse wavelet transform
-    return Y 
 def detect_beats(
         baseline_signal,  # The raw ECG signal
         fs,  # Sampling fs in HZ
@@ -856,142 +552,8 @@ def detect_beats(
     zero_crossings = np.flatnonzero(zero_crossings)
     zero_crossings -= 1
 
-    # return zero_crossings
-    # Add check for minimum difference between R peaks
-##    if len(zero_crossings) != 0:
-##        filtered_zero_crossings = [zero_crossings[0]]  # Initialize with the first R peak
-##        for i in range(1, len(zero_crossings)):
-##            if zero_crossings[i] - zero_crossings[i - 1] > 63:
-##                filtered_zero_crossings.append(zero_crossings[i])
-##        filtered_zero_crossings = np.array(filtered_zero_crossings)
-##        return filtered_zero_crossings
-##    else:
-##        lowcut = 0.5
-##        highcut = 50.0
-##        filtered_signal = butter_bandpass_filter(baseline_signal, lowcut, highcut, fs, order=6)
-##       
-##        out = hami.hamilton_segmenter(filtered_signal, sampling_rate=fs)
-##        rpeaks = hami.correct_rpeaks(filtered_signal, out[0], sampling_rate=fs, tol=0.1)
-##        zero_crossings = rpeaks[0].tolist()
-##        zero_crossings = np.array(zero_crossings)
     return zero_crossings
     
-
-
-##def detect_beats(
-##		ecg,	# The raw ECG signal
-##		rate,	# Sampling rate in HZ
-##		# Window size in seconds to use for 
-##		ransac_window_size=4.0,
-##		# Low frequency of the band pass filter
-##		lowfreq=5.0,
-##		# High frequency of the band pass filter
-##		highfreq=8.0,
-##		):
-##	ransac_window_size = int(ransac_window_size*rate)
-##
-##	lowpass = scipy.signal.butter(1, highfreq/(rate/2.0), 'low')
-##	highpass = scipy.signal.butter(1, lowfreq/(rate/2.0), 'high')
-##	# TODO: Could use an actual bandpass filter
-##	ecg_low = scipy.signal.filtfilt(*lowpass, x=ecg)
-##	ecg_band = scipy.signal.filtfilt(*highpass, x=ecg_low)
-##	
-##	# Square (=signal power) of the first difference of the signal
-##	decg = np.diff(ecg_band)
-##	decg_power = decg**2
-##	
-##	# Robust threshold and normalizator estimation
-##	thresholds = []
-##	max_powers = []
-##	for i in range(int(len(decg_power)/ransac_window_size)):
-##		sample = slice(i*ransac_window_size, (i+1)*ransac_window_size)
-##		d = decg_power[sample]
-##		thresholds.append(0.5*np.std(d))
-##		max_powers.append(np.max(d))
-##
-##	threshold = np.median(thresholds)
-##	max_power = np.median(max_powers)
-##	decg_power[decg_power < threshold] = 0
-##
-##	decg_power /= max_power
-##	decg_power[decg_power > 1.0] = 1.0
-##	square_decg_power = decg_power**4
-##	#square_decg_power = decg_power**4
-##
-##	shannon_energy = -square_decg_power*np.log(square_decg_power)
-##	shannon_energy[~np.isfinite(shannon_energy)] = 0.0
-##
-##	mean_window_len = int(rate*0.125+1)
-##	lp_energy = np.convolve(shannon_energy, [1.0/mean_window_len]*mean_window_len, mode='same')
-##	#lp_energy = scipy.signal.filtfilt(*lowpass2, x=shannon_energy)
-##	
-##	lp_energy = scipy.ndimage.gaussian_filter1d(lp_energy, rate/16.0)
-##	#lp_energy = scipy.ndimage.gaussian_filter1d(lp_energy, rate/8.0)
-##	lp_energy_diff = np.diff(lp_energy)
-##
-##	zero_crossings = (lp_energy_diff[:-1] > 0) & (lp_energy_diff[1:] < 0)
-##	zero_crossings = np.flatnonzero(zero_crossings)
-##	zero_crossings -= 1
-##	return zero_crossings
-
-
-
-def detect_beats1(
-		ecg,	# The raw ECG signal
-		rate,	# Sampling rate in HZ
-		# Window size in seconds to use for 
-		ransac_window_size=2.0,
-		# Low frequency of the band pass filter
-		lowfreq=5.0,
-		# High frequency of the band pass filter
-		highfreq=8.0,
-		):
-	ransac_window_size = int(ransac_window_size*rate)
-
-	lowpass = scipy.signal.butter(1, highfreq/(rate/2.0), 'low')
-	highpass = scipy.signal.butter(1, lowfreq/(rate/2.0), 'high')
-	# TODO: Could use an actual bandpass filter
-	ecg_low = scipy.signal.filtfilt(*lowpass, x=ecg)
-	ecg_band = scipy.signal.filtfilt(*highpass, x=ecg_low)
-	
-	# Square (=signal power) of the first difference of the signal
-	decg = np.diff(ecg_band)
-	decg_power = decg**2
-	
-	# Robust threshold and normalizator estimation
-	thresholds = []
-	max_powers = []
-	for i in range(int(len(decg_power)/ransac_window_size)):
-		sample = slice(i*ransac_window_size, (i+1)*ransac_window_size)
-		d = decg_power[sample]
-		thresholds.append(0.5*np.std(d))
-		max_powers.append(np.max(d))
-
-	threshold = np.median(thresholds)
-	max_power = np.median(max_powers)
-	decg_power[decg_power < threshold] = 0
-
-	decg_power /= max_power
-	decg_power[decg_power > 1.0] = 1.0
-	square_decg_power = decg_power**4
-	#square_decg_power = decg_power**4
-
-	shannon_energy = -square_decg_power*np.log(square_decg_power)
-	shannon_energy[~np.isfinite(shannon_energy)] = 0.0
-
-	mean_window_len = int(rate*0.125+1)
-	lp_energy = np.convolve(shannon_energy, [1.0/mean_window_len]*mean_window_len, mode='same')
-	#lp_energy = scipy.signal.filtfilt(*lowpass2, x=shannon_energy)
-	
-	lp_energy = scipy.ndimage.gaussian_filter1d(lp_energy, rate/20.0)
-	#lp_energy = scipy.ndimage.gaussian_filter1d(lp_energy, rate/8.0)
-	lp_energy_diff = np.diff(lp_energy)
-
-	zero_crossings = (lp_energy_diff[:-1] > 0) & (lp_energy_diff[1:] < 0)
-	zero_crossings = np.flatnonzero(zero_crossings)
-	zero_crossings -= 1
-	return zero_crossings
-
 def SACompare(list1, val):
     l=[]
     for x in list1:
@@ -1019,18 +581,10 @@ def SACompareShort(list1, val1,val2):
 
 
 def connect_mqtt() -> mqtt_client:
-
-
-
     def on_connect(client, userdata, flags, rc,protocol):
         global topic_x
         if rc == 0:
             print("Connected to MQTT")
-##            client.publish("oom/ecg/aiServer",True,2,True)
-##            client.subscribe(topic_x,qos=2)
-            
-            
-            
         else:
             print("Failed to connect, return code %d\n", rc)
 
@@ -1039,15 +593,11 @@ def connect_mqtt() -> mqtt_client:
     client.tls_set_context(context)
     client.enable_shared_subscription = True
     client.username_pw_set(username, password)
-##    client.will_set("oom/ecg/aiServer", False,2,False)
     client.on_connect = on_connect
     client.connect(broker, port)
     return client
 
-
-
 # Baseline shifting and wandering 
-
 def moving_Average(file):
     window_size = 10    
     numbers_series = pd.Series(file)    
@@ -1065,7 +615,6 @@ def baseline_reconstruction(data, kernel_Size):
 
 
 def baseline_beads(file):
-
     fc = 0.0075
     d = 1
     r = 6
@@ -1081,77 +630,6 @@ def baseline_beads(file):
 
     return x
 
-def baseline_detection(data):  
-    df = signal.detrend(data)
-    signal_thread = moving_Average(df)
-    baseline = baseline_reconstruction(df, kernel_Size = 81)
-    thread_corrected = moving_Average(baseline)
-
-    diff =  thread_corrected - signal_thread
-
-    diff_max = max(diff)
-    diff_min = min(diff)
-    diff_pvar = pvariance(diff)
-
-    if (diff_pvar>0.0029 and (diff_min<=(-0.79) or 0.68<diff_max<0.72)) or ((-0.63)<diff_min<(-0.3) and 0.0093<diff_pvar<0.05):
-
-        baseline_51 = baseline_reconstruction(data, kernel_Size=51)
-        thread = moving_Average(baseline_51)
-        baseline_decision = thread - signal_thread
-        baseline_decision_max = max(baseline_decision) 
-        baseline_decision_min = min(baseline_decision)
-        baseline_decision_pvar = pvariance(baseline_decision)
-
-        
-        if ((1.3<baseline_decision_max<1.95 or baseline_decision_max>2) and (-1)>baseline_decision_min):
-            label = "High Baseline"
-        elif (1.05<baseline_decision_max<1.2 and (-0.79)<baseline_decision_min<(-0.67) and 0.039<baseline_decision_pvar<0.09):
-            label = "Pybeads"
-            base_beads = baseline_beads(df)
-        else:
-            label = " Normal Baseline"
-
-
-    elif (0.174<diff_max<0.41 and -0.294>diff_min>-0.95 and 0.0052<diff_pvar<0.0089):
-        label = "Pybeads"
-        base_beads = baseline_beads(df)
-    else:
-        label = "Normal"
-    
-    
-    if label == "High Baseline":
-        return baseline_51
-    
-    elif label == "Pybeads":
-        return base_beads
-    
-    else:
-        return baseline
-
-
-def normalize(signal, feature_range= (0,1)):
-  scaler = MinMaxScaler(feature_range=feature_range)
-  if signal.ndim==2: 
-    a = scaler.fit_transform(signal)
-    return a.reshape(len(a),)
-  a = scaler.fit_transform(signal.reshape(-1,1))
-  return a.reshape(len(a),)
-
-def fft_clear_signal(signal, dt=1, low_thr=0., high_thr=0.5, power=True):
-  n = len(signal)
-  fhat = np.fft.fft(signal, n)
-  PSD = fhat * np.conj(fhat)/n
-  freq = (1/(dt*n))*np.arange(n)
-  L = np.arange(1, np.floor(n/2), dtype='int')
-  if power:
-    indices = PSD > high_thr
-  else:
-    indices = np.where(((low_thr <= freq) & (freq <= high_thr)), True, False)
-  
-  fhat = indices * fhat
-  ffilt = np.fft.ifft(fhat)
-  return ffilt.real
-
 def lowpass_11(file):
   b, a = signal.butter(3, 0.3, btype='lowpass', analog=False)
   low_passed = signal.filtfilt(b, a, file)
@@ -1166,93 +644,6 @@ def lowpass_2(file):
   b, a = signal.butter(3, 0.2, btype='lowpass', analog=False)
   low_passed = signal.filtfilt(b, a, file)
   return low_passed
-
-def noise_final(ecg_signal):
-    frequency = 200
-    threshold_pos = 0.535
-    threshold_neg = -0.7 
-    gap = 20
-    max_peak_diff = frequency * 0.28
-
-    apply_scalar = MinMaxScaler(feature_range=(0, 2)).fit_transform(ecg_signal.reshape(-1, 1)).squeeze() #2
-    if frequency == 200:
-        bes = baseline_reconstruction(apply_scalar, kernel_Size=101)
-        max_peak_diff= 50
-
-    low = lowpass_2(bes)
-
-    above_positive_threshold = argrelextrema(low, np.greater, order=1)[0]
-    below_negative_threshold = argrelextrema(low, np.less, order=1)[0]
-
-    # Filter out the indices of peaks that pass through the thresholds
-    peaks_above_positive_threshold = [idx for idx in above_positive_threshold if low[idx] > threshold_pos]
-    peaks_below_negative_threshold = [idx for idx in below_negative_threshold if low[idx] < threshold_neg]
-
-    # Check if any elements fall within 15 indices and consider only the maximum point from nearby detected peaks
-    if len(peaks_above_positive_threshold) > 1:
-        peaks_pos = []
-        last_idx = peaks_above_positive_threshold[0]
-        for idx in peaks_above_positive_threshold[1:]:
-            if idx - last_idx > gap:
-                peaks_pos.append(last_idx)
-                last_idx = idx
-            elif low[idx] > low[last_idx]:
-                last_idx = idx
-        peaks_pos.append(last_idx)
-    else:
-        peaks_pos = peaks_above_positive_threshold
-
-    if len(peaks_below_negative_threshold) > 1:
-        peaks_neg = []
-        last_idx = peaks_below_negative_threshold[0]
-        for idx in peaks_below_negative_threshold[1:]:
-            if idx - last_idx > gap:
-                peaks_neg.append(last_idx)
-                last_idx = idx
-            elif low[idx] < low[last_idx]:
-                last_idx = idx
-        peaks_neg.append(last_idx)
-    else:
-        peaks_neg = peaks_below_negative_threshold
-
-    # Get the values of the peak points
-    peak_values_pos = low[peaks_pos]
-    peak_values_neg = low[peaks_neg]
-
-    min_noise_count = 4
-    pos_diff = np.diff(peaks_pos)
-    neg_diff = np.diff(peaks_neg)
-    count_pos = len([num for num in pos_diff if num < max_peak_diff])
-    count_neg = len([num for num in neg_diff if num < max_peak_diff])
-
-    if len(peaks_pos) < 5 and len(peaks_neg) < 5:
-        min_noise_count = 1
-
-    r_index = detect_beats(bes, frequency)
-    diff_r_peak = np.diff(r_index)
-        
-    filtered_list = [num for num in diff_r_peak if num < max_peak_diff]
-
-    if (len(peaks_pos) == 0 and len(peaks_neg) == 0):
-        result = "high_noise"
-    elif (len(peaks_pos) != 0 or len(peaks_neg)  != 0):
-        list_temp = min(len(peaks_pos), len(peaks_neg)) / max(len(peaks_pos), len(peaks_neg))
-        if count_pos >= 7 or count_neg >= 7:
-            result = "high_noise"
-        elif len(filtered_list) > 10:
-            result = 'high_noise'
-        elif 0.85 > list_temp > 0.13 or list_temp == 0:
-            if count_pos >= min_noise_count or count_neg >= min_noise_count:
-                result = "high_noise"
-            else:
-                result = "Normal"
-        else:
-            result = "Normal"
-    else:
-        result = "Normal"
-
-    return result
-
 
 def prediction_model_noise(input_arr):
     with results_lock:
@@ -1270,8 +661,6 @@ def plot_to_imagearray_noise(ecg_signal):
     fig, ax = plt.subplots(num=1, clear=True)
     ax.plot(ecg_signal, color='black')
     ax.axis(False)
-##    random_letters = ''.join(random.choices(string.ascii_letters, k=12))
-##    plt.savefig("images\\"+random_letters+".jpg")
     fig.canvas.draw()
     data = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
     data = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
@@ -1284,7 +673,7 @@ def check_noise_model(ecg_signal, frequency):
     total_data = ecg_signal.shape[0]
     start = 0
     baseline, non_ecg = [], []
-    percent = {'Normal': 0, 'Noise': 0}
+    percentage = {'Normal': 0, 'Noise': 0, 'total_slice': 0}
     while start < total_data:
         end = start + steps_data
         if end - start == steps_data and end < total_data:
@@ -1295,190 +684,31 @@ def check_noise_model(ecg_signal, frequency):
         output_data, class_name = prediction_model_noise(image_data)
         if class_name == 'Normal':
             baseline.append(((start, end), output_data))
-            percent['Normal'] += (end - start) / total_data
+            # percent['Normal'] += (end - start) / total_data
+            percentage['Normal'] += 1
         else:
             non_ecg.append(((start, end), output_data))
-            percent['Noise'] += (end - start) / total_data
+            # percent['Noise'] += (end - start) / total_data
+            percentage['Noise'] += 1
         start += steps_data
-    return baseline, non_ecg, percent
+    noise_label = 'Normal'
+    if percentage['total_slice'] != 0:
+        if percentage['Noise'] == percentage['total_slice'] and percentage['total_slice'] > 0.5:
+            noise_label = 'high_noise'
+        elif percentage['Noise']/percentage['total_slice']  >= 0.6:
+            noise_label = 'high_noise'
+    return noise_label
 
 
 def noise_engine(flag,ecgdata):
-    global ref_file
+    noise_label = 'Normal'
     if flag == "200":
         ecg_signal = np.array(ecgdata["ECG"])
-        baseline, non_ecg, percent = check_noise_model(ecg_signal, 200)
-        
-        if percent["Normal"]>0.5:
-            return "Normal"
-        else:
-            return "high_noise"
+        noise_label = check_noise_model(ecg_signal, 200)
 
-##def noise_engine(flag,ecgdata):
-##    global ref_file
-##    if flag == "200":
-##        final_label = "Normal"
-####        ecg_signal = pd.read_csv("b.csv")["ECG"]
-##        ecg_signal = ecgdata["ECG"]
-##        val = 0
-##        initial_file = ecg_signal
-##        initial_600_data  = ecg_signal.iloc[0:600]
-##        final_600_data = ecg_signal.iloc[-601:-1]
-##        # check for non-ecg
-##        initial_files = lowpass_2(ecg_signal)
-##        s_norm = normalize(initial_files)
-##        gradient = np.gradient(initial_file.values)
-##        gradient_pVAR = (pvariance(gradient)/pvariance(initial_file.values))
-##        gradient_std = np.std(gradient)
-##        std = np.std(initial_file)
-##        kurtosis = stats.kurtosis(initial_file)
-##        # print(gradient_std, gradient_pVAR, std)
-##        clean_signal = fft_clear_signal(s_norm, low_thr=0, high_thr=0.15, power=False)
-##        cl_norm = normalize(clean_signal)
-##
-##        f, psd = welch(initial_file, fs=200, nperseg=1024)
-##        spectral_centroid = np.sum(f * psd) / np.sum(psd)
-##        spectral_bandwidth = np.sqrt(np.sum(psd * (f - spectral_centroid) ** 2) / np.sum(psd))
-##        spectral_skewness = np.sum(psd * (f - spectral_centroid) ** 3) / np.sum(psd) / spectral_bandwidth ** 3
-##        spectral_kurtosis = (np.sum(psd**4) / len(psd)) / (psd.var()**2) - 2*(stats.kurtosis(psd) - 3)
-##        signal_diff = np.diff(initial_file)
-##        zero_crossings = len(np.where(np.diff(np.sign(initial_file)))[0])
-####        final_label = "Normal"
-##        print(gradient_std, gradient_pVAR, std)
-
-        
-    # conditions for 200 frequency
-        
-##        if len(initial_file) == 2000:
-##            if (gradient_pVAR<0.068 and std>1.1 )or std <0.001:
-##                final_label = "Non_ECG"
-####                print("OK1")
-##            elif (gradient_std<0.07 or gradient_std>0.33) and (std <0.008 or std>0.7):
-##                    final_label = "Non_ECG"
-####                    print("OK2")
-##            elif gradient_pVAR> 0.75:
-##                final_label = "Non_ECG"
-####                print("OK3")
-##            elif(gradient_pVAR>0.58 and gradient_pVAR<0.7)and gradient_std>0.35 and std>0.44:
-##                final_label = "Non_ECG"
-####                print("OK4")
-##            elif gradient_pVAR<0.125 and (std>0.74 and std<=1.1):
-##                final_label = "high_noise"
-##            elif kurtosis < 0.03 and spectral_skewness < 4 and spectral_centroid > 4 and std>0.7:
-##                final_label ="high_noise"
-##            elif gradient_std > 0.05 and spectral_kurtosis<(-270) and gradient_pVAR>0.5 : 
-##                final_label="Non_ECG"
-####                print("OK5")
-##            else:
-##                final_label = "Normal"
-##        else:
-##            if (gradient_pVAR<0.068 and std>1.1 )or std <0.001:
-##                final_label = "Non_ECG"        
-##            elif (gradient_std<0.07 or gradient_std>0.37) and (std <0.008 or std>0.71):
-##                final_label = "Non_ECG"        
-##            elif gradient_pVAR> 0.8:
-##                final_label = "Non_ECG"        
-##            elif (gradient_pVAR>0.58 and gradient_pVAR<0.7) and gradient_std>0.34 and std>0.44:
-##                final_label = "Non_ECG"        
-##            elif gradient_pVAR<0.11 and (std>0.79 and std<=1.1):
-##                final_label = "high_noise"
-##            elif kurtosis < 0.03 and spectral_skewness < 4 and spectral_centroid > 4 and std>0.7:
-##                final_label ="high_noise"
-##            else:
-##                final_label = "Normal"
-
-        
-##        final_label = "Normal"
-##        if final_label == "Normal":
-##            std_initial_600 = np.std(initial_600_data)
-##            std_final_600 = np.std(final_600_data)
-##            if std_final_600 < 0.008 or std_initial_600<0.008:
-##                final_label = "high_noise"
-##                val = 1
-##            elif len(initial_file)>100:
-##                max_val = max(initial_file)
-##                min_val = min(initial_file)
-##                start = 0
-##                end =500
-##                while True:
-##                    data_500 = initial_file.iloc[start:end]
-##                    extreme_max_count = 0
-##                    extreme_min_count = 0
-##                    for l in data_500:
-##                        
-##                        if max_val - 0.009 <= l :
-##                            extreme_max_count+=1
-##
-##                        elif min_val +0.009>= l:
-##                            extreme_min_count +=1
-##                        else: 
-##                            pass
-##                    if extreme_max_count>200 or extreme_min_count>200:
-##                        final_label = "high_noise"
-##                        break
-##                    else:
-##                        final_label = "Normal"
-##                    start+=500
-##                    end+=500
-##                    if end>len(initial_file):
-##                        break
-##
-##
-##
-##        if final_label == "Normal":
-##
-##            min_voltage = np.min(initial_file)
-##            max_voltage = np.max(initial_file)
-##            vol_range = max_voltage - min_voltage
-##            kurtosis = stats.kurtosis(initial_file)
-##
-##
-##        # Calculate time-domain properties
-##
-##            signal_diff = np.diff(initial_file)
-##            zero_crossings = len(np.where(np.diff(np.sign(initial_file)))[0])
-##
-##            if vol_range > 0.4 and  vol_range< 1 and zero_crossings ==0 and kurtosis<1.5 and (std>0.09 and std<0.1):
-##                final_label = "Non_ECG"
-##            elif min_voltage> 0 and zero_crossings ==0:
-##                final_label = "Normal"
-##            elif min_voltage ==0 and zero_crossings <=8:
-##                final_label = "Normal"
-##            elif min_voltage ==0 and zero_crossings> 70:
-##                final_label = "Non_ECG"
-##            else:
-##                final_label = "Normal"
-##                
-####        if val == 0 or val == 1:
-####            final_label = noise_final(initial_files)
-##
-##        
-##        if final_label == "Normal":
-##            baseline = baseline_detection(initial_file)
-##            out = pvariance(ref_file)/pvariance(initial_file)
-##            final_label = "high_noise" if out < 0.1 else "Normal"
-##            base1 = signal.detrend(ecg_signal)
-##            medfilt1 = signal.medfilt(base1,171)
-##            outputss = np.where(abs(medfilt1)>0.60, 1, 0)
-##            final_label = 'high_noise_recovery' if outputss.any() else 'Normal'
-##            if final_label == "high_noise_recovery":
-##                return "high_noise_recovery",baseline
-##            else:
-##                return baseline
-####        print(final_label)
-##        if final_label == "Non_ECG":
-##            return None
-##        elif final_label == "high_noise":
-##            return  "high_noise"
-####        else:
-####            return baseline
-
-
-
-
+    return noise_label
 
 def unique(list1):
- 
     # initialize a null list
     unique_list = []
  
@@ -1491,24 +721,18 @@ def unique(list1):
     return unique_list
 
 def QRS_detection(signal,sample_rate,max_bpm):
-
-    ## Stationary Wavelet Transform
     coeffs = pw.swt(signal, wavelet = "haar", level=2, start_level=0, axis=-1)
     d2 = coeffs[1][1] ##2nd level detail coefficients
     
-    
-    ## Threhold the detail coefficients
     avg = np.mean(d2)
     std = np.std(d2)
     sig_thres = [abs(i) if abs(i)>2.0*std else 0 for i in d2-avg]
     
-    ## Find the maximum modulus in each window
     window = int((60.0/max_bpm)*sample_rate)
     sig_len = len(signal)
     n_windows = int(sig_len/window)
     modulus,qrs = [],[]
     
-    ##Loop through windows and find max modulus
     for i in range(n_windows):
         start = i*window
         end = min([(i+1)*window,sig_len])
@@ -1517,7 +741,6 @@ def QRS_detection(signal,sample_rate,max_bpm):
             modulus.append( (start + np.argmax(sig_thres[start:end]),mx))
     
     
-    ## Merge if within max bpm
     merge_width = int((0.2)*sample_rate)
     i=0
     while i < len(modulus)-1:
@@ -1529,7 +752,6 @@ def QRS_detection(signal,sample_rate,max_bpm):
                 
         qrs.append(ann)
         i+=1 
-    ## Pin point exact qrs peak
     window_check = int(sample_rate/6)
     #signal_normed = np.absolute((signal-np.mean(signal))/(max(signal)-min(signal)))
     r_peaks = [0]*len(qrs)
@@ -1543,7 +765,6 @@ def QRS_detection(signal,sample_rate,max_bpm):
         
     return r_peaks
 
-
 def get_percentage_diff(previous, current):
     try:
         percentage = abs(previous - current)/max(previous, current) * 100
@@ -1553,9 +774,6 @@ def get_percentage_diff(previous, current):
 
 def Average(lst):
     return sum(lst) / len(lst)
-
-
-
 
 def indexes(y, thres=0.8, min_dist=80, thres_abs=False):
     """Peak detection routine.
@@ -1670,16 +888,12 @@ def lowpass(file):
     low_passed = signal.filtfilt(b, a, file)
     return low_passed
 
-
-
-
 def baseline_construction_250(ecg_signal, kernel_size=131):
     als_baseline = baseline_als(ecg_signal, 16 ** 5, 0.01)
     s_als = ecg_signal - als_baseline
     s_corrected = signal.detrend(s_als)
     corrected_baseline = s_corrected - signal.medfilt(s_corrected, kernel_size)
     return corrected_baseline
-
 
 def find_s_indexs(ecg, R_index, d):
     d = int(d) + 1
@@ -1697,20 +911,6 @@ def find_s_indexs(ecg, R_index, d):
             s_index = i + np.where(s_array == max(s_array))[0][0]
         s.append(s_index)
     return s
-
-# def find_s_index(r,file):
-#     s = []
-#     data= []
-#     for d in range (0, len(r)):
-#         s_p = file[r[d]:r[d]+30]
-#         for k in range (0,len(s_p)):
-#             data.append(s_p[k])
-#         min_d = min(data)
-#         min_id = data.index(min_d)
-#         s.append(r[d]+min_id)
-#         data.clear()
-#     return s
-
 
 def find_q_indexs(ecg, R_index, d):
     d = int(d) + 1
@@ -1791,35 +991,12 @@ def find_p_t(signal, r_index, q_index, j_index):
             pt.extend([0])
     return pt, p_t
 
-
-
-def AFIB(p_t):
-    PT = []
-    for i in range (len(p_t)):
-        PT.append(len(p_t[i]))
-
-    Total_beats = len(PT)
-    Normal_Count = PT.count(2)
-    afib_count = Total_beats - Normal_Count
-    Ratio = (afib_count/Total_beats)*100
-##    print("Ratio:",Ratio)
-    if Ratio>40:
-        return 1
-    else:
-        return 0
-
-
-
-
 def hr_count(ecg_signal, r_index, fs=200):
     cal_sec = round(ecg_signal.shape[0]/fs)
     if cal_sec != 0:
         hr = round(r_index.shape[0]*60/cal_sec)
         return hr
     return 0
-
-
-
 
 def fir_lowpass_filter(data, cutoff, numtaps=21):
     """A finite impulse response (FIR) lowpass filter to a given data using a
@@ -2055,8 +1232,6 @@ def find_r_peaks(ecg_signal,fs=200):
     Returns:
         list: the R-peak indices of the ECG signal using the Hamilton QRS complex detector algorithm.
     """
-##    out = hamilton_segmenter(signal=ecg_signal, sampling_rate=fs)
-##    r_index_ = out["rpeaks"]
     r_index_ = detect_beats(ecg_signal, fs)
     return r_index_
 
@@ -2257,10 +1432,6 @@ def pt_detection_4(ecg_signal, r_index, q_index, s_index):
                     m, n = pos[i-1], pos[i]
                     if m in Pa and n in Pb:
                         P.append(m) if arr[m] > arr[n] else P.append(n)
-            # if Pa and Pa[-1] == pos[-1]:
-            #     P.append(Pa[-1])
-            # if Pb and Pb[0] == pos[0]:
-            #     P.append(Pb[0])
         else:
             P = pos
         return np.sort(P)
@@ -2279,7 +1450,6 @@ def pt_detection_4(ecg_signal, r_index, q_index, s_index):
 
 def afib_percentage(p_t, fs=200):
     percentage = []
-    # threshold = int(fs*0.28)
     if fs == 200:
         threshold = 40
     else:
@@ -2288,9 +1458,6 @@ def afib_percentage(p_t, fs=200):
         d = p_t[k]
         cnt = 0
         difference = np.diff(p_t[k]).tolist()
-        # print(difference, "=============difference")
-        # if difference==[]:
-        #      percentage.append(0)
         if 1 < len(p_t[k]) < 5:
             for jj in range(0, len(difference)):
                 if difference[jj] < threshold:
@@ -2310,63 +1477,11 @@ def afib_percentage(p_t, fs=200):
                 percentage.append(1)
         else:
             percentage.append(0)
-    # print(percentage, "============percentage")
     per = (percentage.count(1) / len(percentage)) * 100
-    # print(per, "=======per")
     return per
-
-
-
-    """Calculates the percentage of atrial fibrillation (AFib) in a given patient's
-    electrocardiogram (ECG) data based on the duration of irregular heartbeats.
-
-    Args:
-        p_t (list of lists): A list of lists, where each inner list represents the time intervals between consecutive
-    heartbeats for a patient. The time intervals are in milliseconds
-
-    Returns:
-        _type_: The average percentage of AFib episodes based on the input parameter `p_t`, which is a list
-    of lists containing the time intervals between consecutive R-peaks in an ECG signal.
-    """
-##    percentage = []
-##    threshold = int(fs*0.35)
-##    if fs != 200:
-##        a = 1
-##    else:
-##        a = 2
-##    for k in range (0,len(p_t)):
-##        d = p_t[k]
-##        cnt = 0
-##        difference = np.diff(p_t[k]).tolist()
-##        # if difference==[]:
-##        #      percentage.append(0)
-##        if a<len(p_t[k])<5:
-##            for jj in range (0,len(difference)):
-##                if difference[jj] < threshold:
-##                    cnt +=1
-##                else:
-##                    pass
-##            if cnt>(0.5*len(difference)):
-##                percentage.append(1)
-##            else:
-##                percentage.append(0)
-##        elif len(p_t[k])>4:
-##            percentage.append(1)
-##        elif len(p_t[k]) == 1:
-##            if p_t[k] == [0]:
-##                percentage.append(0)
-##            else:
-##                percentage.append(1)
-##        else:
-##            percentage.append(0)
-##
-##    per = (percentage.count(1)/len(percentage))*100
-##
-##    return per
 
 def AFIB_cross_check(ecg_signal, p_t, r_label, fs=200):
     total_len = len(p_t)
-    # Get the length of each inner list
     lengths = []
     output_list = []
     label = "Abnormal"
@@ -2384,7 +1499,6 @@ def AFIB_cross_check(ecg_signal, p_t, r_label, fs=200):
                     window_start = max(0, peaks - window_size // 2)
                     window_end = min(len(ecg_signal), peaks + window_size // 2)
                     area = trapz(ecg_signal[window_start:window_end])
-##                    print(area)
                     if 25 <= area <= 50:
                         area_list.append(round(area,2))
 
@@ -2394,9 +1508,6 @@ def AFIB_cross_check(ecg_signal, p_t, r_label, fs=200):
                     output_list.append(0)
             else:
                 output_list.append(0)
-    # print(output_list)
-    # Print the lengths
-    # print(lengths, "length--------------")
     zeros = lengths.count(0)
     ones = lengths.count(1)
     twos = lengths.count(2)
@@ -2413,44 +1524,6 @@ def AFIB_cross_check(ecg_signal, p_t, r_label, fs=200):
                 af_per = 1.
                 
     return label, af_per, zeros, ones, twos, threes_to_nines
-
-
-##    """
-##    Classify the ECG signal based on certain criteria.
-##
-##    Args:
-##        p_t (list): It is a list of lists where each inner list represents a segment of ECG signal's P & T waves.
-##
-##    Returns:
-##        str: a label indicating whether the signal is "Afib", "Abnormal", or "Normal".
-##    """
-##    total_len = len(p_t)
-##    # Get the length of each inner list
-##    lengths = []
-##    for inner_list in p_t:
-##        if inner_list == [0]:
-##            lengths.append(0)
-##        else:
-##            lengths.append(len(inner_list))
-##    zeros = lengths.count(0)
-##    ones = lengths.count(1)
-##    twos = lengths.count(2)
-##    threes_to_nines = sum([lengths.count(i) for i in range(3, 10)])
-##    
-##    # if round(((twos+ones)/total_len)*100)>=70 and round((ones/total_len)*100)>=50:
-##    #     label = "Abnormal"
-##    if (round((zeros/total_len)*100)>=17 and 
-##        round((ones/total_len)*100)>=40 and 
-##        round(((zeros+ones)/total_len)*100)>=40) or (round((threes_to_nines/total_len)*100) >= 6 and 
-##                                                     afib_percentage(p_t,fs=fs)>=56):
-##        label = "Afib"
-##    elif round((twos/total_len)*100) >= 50:
-##        label = "Abnormal"
-##    elif round((zeros/total_len)*100) >= 70 or round((ones/total_len)*100) >= 70:
-##        label = "Abnormal"
-##    else:
-##        label = "Abnormal"
-##    return label, zeros, ones, twos, threes_to_nines
 
 def find_pt(ecg_signal, r_index, q_index, s_index, width=(5,50), lp_thres = 0.2):
     _, p_t1 = pt_detection_1(ecg_signal, r_index, q_index, s_index, width, lp_thres)
@@ -2480,7 +1553,6 @@ def find_pt(ecg_signal, r_index, q_index, s_index, width=(5,50), lp_thres = 0.2)
             p_t.append([0])
     result = []
     for sublist in p_t:
-        # print(sublist)
         temp = [sublist[0]]
         for i in range(1, len(sublist)):
             if abs(sublist[i] - sublist[i-1]) > 5:
@@ -2499,17 +1571,13 @@ def segricate_p_t_pr_inerval(r_index, p_t, fs=200, thres=0.5):
     """
     threshold = 0.37 for JR and 0.5 for other diseases
     """
-    # print(thres, fs)
     diff_arr = ((np.diff(r_index)*thres)/fs).tolist()
     t_peaks_list, p_peaks_list, pr_interval, extra_peaks_list = [], [], [], []
-    # threshold = (-0.0012 * len(r_index)) + 0.25
-    # print(f"threshold == {threshold}")
-    # print(p_t)
+   
     for i in range(len(p_t)):
         p_dis = (r_index[i+1]-p_t[i][-1])/fs
         t_dis = (r_index[i+1]-p_t[i][0])/fs
         threshold = diff_arr[i]
-        # print(f"Distance == {p_dis}")
         if t_dis > threshold and (p_t[i][0]>r_index[i]): t_peaks_list.append(p_t[i][0])
         if p_dis <= threshold: 
             p_peaks_list.append(p_t[i][-1])
@@ -2567,8 +1635,6 @@ def pqrst_detection(ecg_signal, fs=200, thres=0.5, lp_thres=0.2, rr_thres=0.12, 
         ecg_signal = lowpass(ecg_signal, cutoff = 0.2)
     sd, qd = int(fs * 0.115), int(fs * 0.08)
     s_index = find_s_index(ecg_signal, r_index, sd)
-    # q_index = find_q_index(ecg_signal, r_index, qd)
-    # s_index = find_new_s_index(ecg_signal,r_index,sd)
     q_index = find_new_q_index(ecg_signal,r_index,qd)
     j_index = find_j_index(ecg_signal, s_index, fs=fs)
     p_t, pt = find_pt(ecg_signal, r_index, q_index, s_index, lp_thres=lp_thres, width=width)
@@ -2591,10 +1657,7 @@ def pqrst_detection(ecg_signal, fs=200, thres=0.5, lp_thres=0.2, rr_thres=0.12, 
 
 def afib_detection(ecg_signal, fs=200):
     
-    baseline_signal = baseline_construction_200(ecg_signal,kernel_size=101)
-        
-##    low_pass_signal = lowpass(ecg_signal, cutoff=0.2)
-    
+    baseline_signal = baseline_construction_200(ecg_signal,kernel_size=101)    
     pqrst_data = pqrst_detection(baseline_signal, fs=fs)
     r_label = pqrst_data['R_Label']
     p_t = pqrst_data['P_T List']
@@ -2636,57 +1699,8 @@ def funcs(sorted_data):
                 if stop> len(A1[i]):
                     break
         date_time = np.array(date_time)
-##        plt.plot(data_list)
-##        plt.show()
         df = pd.DataFrame({"DateTime":date_time, "ECG":data_list})
         return df 
-
-
-##def wide_qrs_find(q_index, r_index, s_index, hr_count, fs=200):
-##    """The distance between the QRS complex's Q wave and S wave.
-##
-##    Args:
-##        q_index (list): Q waves indices in an ECG signal
-##        r_index (list): R-peak indices in an ECG signal
-##        s_index (list): S waves indices in an ECG signal
-##        fs (int, optional): sampling rate of the ECG signal, defaults to 200 (optional)
-##
-##    Returns:
-##        array: the R-peak indices that correspond to wide QRS complexes in an ECG signal.
-##    The function takes in three arrays as inputs: q_index, r_index, and s_index, which represent the
-##    indices of the Q-wave onset, R-peak, and S-wave offset, respectively. The function loops through the
-##    R-peak indices and calculates the difference between
-##    """
-##    max_indexs = 0
-##    if hr_count<60:
-##        ms = 0.135
-##        max_indexs = int(fs * ms)
-##    elif 60 <= hr_count <100:
-##        ms = 0.135
-##        max_indexs = int(fs * ms)
-##    pvc = []
-##    difference = []
-##    for k in range(len(r_index)):
-##        diff = s_index[k] - q_index[k]
-##        # print(diff)
-##        difference.append(diff)
-##        if max_indexs != 0:
-##            if diff>=max_indexs:
-##                pvc.append(r_index[k])
-##    mode_ = mode(difference)
-##    # print("Mode:",mode_,"\n","Difference:",[i/200 for i in difference])
-##    if hr_count>=100:
-##        for k in range(len(r_index)-1):
-##            diff = s_index[k] - q_index[k]
-##            if diff>33:#or diff > mode_+2:
-##                pvc.append(r_index[k])
-##            else:
-##                pass
-##    # print("PVC:",pvc)
-##    q_s_difference = [round(i/fs, 2) for i in difference]
-##    return np.array(pvc), q_s_difference
-
-
 
 def find_s_newnew_index(ecg, R_index, d):
     end_index = len(ecg) - 1
@@ -2904,96 +1918,6 @@ def find_q_newnew_index(ecg, R_index, d):
                 q.append(q_index)
     return np.sort(q)
 
-# def model_predict(lowpass_signal, s, q, _s, q_, model):
-#     jr_pred, model_prediction = None, None
-#     data_with_r, data_without_r = lowpass_signal[q:s], lowpass_signal[_s:q_]
-#     if data_with_r.any() and data_without_r.any():
-#         image_data1, image_data2 = image_array_new(data_with_r), image_array_new(data_without_r)
-#         image_data = (tf.expand_dims(image_data1, axis=0), tf.expand_dims(image_data2, axis=0))
-#         image_data = (tf.cast(image_data[0], dtype=tf.float32), tf.cast(image_data[1], dtype=tf.float32))
-#         model_pred = predict_tflite_model(model, image_data)[0]
-#         # print(model_data)
-#         # K.clear_session()
-#         label_pvc = np.argmax(model_pred)
-#         model_prediction = f'{(_s, q_)}={model_pred}'
-#         if label_pvc == 1:
-#             jr_pred = (_s, q_)
-#             jr_r = 1
-#         else:
-#             jr_r = 0
-#     else:
-#         jr_r = 0
-#     return jr_pred, jr_r, model_prediction
-
-
-# def jr_model_detection(baseline_signal, r_index, model, hr_counts, fs):
-#     model_prediction = []
-#     jr_pred = []
-#     jr_r = []
-#     futures_jr = {}
-#     sd, qd = int(fs * 0.115), int(fs * 0.08)
-#     s_index = find_s_newnew_index(baseline_signal, r_index, sd)
-#     q_index = find_q_newnew_index(baseline_signal, r_index, qd)
-#     ii = 0
-#     lowpass_signal = lowpass(baseline_signal, (fs * -0.00016964) + 0.20821429)
-#     for q, _s, s, q_ in zip(q_index[:-1], s_index[:-1], s_index[1:], q_index[1:]):
-#         futures_jr[ii] = executor.submit(model_predict, lowpass_signal, s, q, _s, q_, model)
-#         ii += 1
-#     count_zeros = 0
-#     for k in range(ii):
-#         data = futures_jr[k].result()
-# ##        print(data)
-#         if data:
-#             if data[0]: jr_pred.append(data[0])
-#             if data[1] == 0 : count_zeros += 1 
-#             if data[2]: model_prediction.append(data[2])
-    
-# ##    print('count_zeros : ', count_zeros)
-#     jr_model_percent = 0
-# ##    print(i)
-#     if ii != 0: jr_model_percent = (ii -count_zeros)/ii
-#     jr_label = "Abnormal"
-# ##    print('jr_model_percent : ', jr_model_percent)
-#     if jr_model_percent >= 0.75:
-#         jr_label = "Junctional_Rhythm" if hr_counts > 40 else "Junctional_Bradycardia"
-#     jr_data = {}
-#     jr_data['JR_Pred'] = jr_pred
-#     jr_data['JR_Model_Percent'] = jr_model_percent
-#     jr_data['Model_Pred'] = model_prediction
-#     jr_data['JR_Label'] = jr_label
-#     return jr_data
-
-# def jr_detection(baseline_signal,model, fs):
-# ##    low_pass_signal = lowpass(baseline_signal,0.2)
-#     pqrst_data = pqrst_detection(baseline_signal, fs=fs, thres=0.37, lp_thres=0.1, rr_thres = 0.15)
-#     r_label = pqrst_data['R_Label']
-#     r_index = pqrst_data['R_index']
-#     p_t = pqrst_data['P_T List']
-#     hr_ = pqrst_data['HR_Count']
-#     p_index = pqrst_data['P_Index'] 
-#     jr_label = 'Abnormal'
-#     count = 0
-
-#     if r_label == "Regular" and hr_ <= 60:
-#         jr_model_data = jr_model_detection(baseline_signal, r_index, model, hr_, fs)
-#         jr_model_percent = jr_model_data['JR_Model_Percent']
-#         new_threshold = 0.065 if hr_ > 50 else 0.06
-#         for i in range(len(p_t)):
-#             dis = (r_index[i+1]-p_t[i][-1])/fs
-#             # print(f"Distance == {dis}")
-#             if dis <= new_threshold: count += 1
-        
-#         # print(f"merged_r_peaks == {count}, p_peaks == {len(p_index)}, r_indices == {len(r_index)}")
-#         jr_abstraction_per = ((len(r_index)-1 - (len(p_index)-count))/(len(r_index)-1))
-#         combined_percent = (jr_model_percent *0.2) + (jr_abstraction_per *0.8)
-        
-#         if combined_percent >= 0.75 and jr_model_percent >= 0.2:
-#             jr_label = "Junctional_Rhythm" if hr_ > 40 else "Junctional_Bradycardia"
-#         else:
-#             jr_label = "Abnormal"
-#     return jr_label
-
-
 def wide_qrs(q_index, r_index, s_index, fs=200):
     label = 'Abnormal'
     wideQRS = []
@@ -3027,72 +1951,6 @@ def mobitz_I_list(pr_interval):
         return max(max_lists_length), output
     return 0,[]
 
-def block_check(r_label, pr_label, p_label, pr_interval, fs=200):
-    pr_cont, pr_list = mobitz_I_list(pr_interval)
-    if len(pr_interval) > 0:
-        if pr_label == 'Not Constant' and r_label == 'Regular' and p_label == 'Constanat':
-            label = 'III Degree'
-        elif round((pr_cont/len(pr_interval))*100)>=85 and r_label == 'Irregular' and pr_label == 'Not Constant':
-            label = "Mobitz I"
-        elif r_label == 'Irregular':
-            label = 'Abnormal'
-        else:
-            label = "Abnormal"
-    else:
-        label = "Abnormal"
-    data = {'Mobiz_I_list': pr_list,
-            'Block_Label': label}
-    return data
-
-
-
-def detect_block(ecg_signal, fs=200):
-    if fs != 200:
-        ecg_signal = MinMaxScaler(feature_range=(0,4)).fit_transform(ecg_signal.reshape(-1,1)).squeeze()
-    if fs == 200:
-        baseline_signal = baseline_construction_200(ecg_signal,kernel_size=101)
-    pqrst_data = pqrst_detection(baseline_signal, fs=fs, lp_thres=0.1)
-    r_label = pqrst_data['R_Label']
-    pr_label = pqrst_data['PR_label']
-    p_label = pqrst_data['P_Label']
-    pr_interval = pqrst_data['PR_Interval']
-    hr_counts = pqrst_data['HR_Count']
-    r_index = pqrst_data['R_index']
-    q_index = pqrst_data['Q_Index']
-    s_index = pqrst_data['S_Index']
-    j_index = pqrst_data['J_Index']
-    p_t = pqrst_data['P_T List']
-    pt = pqrst_data['PT PLot']
-    t_index = pqrst_data['T_Index'] 
-    p_index = pqrst_data['P_Index']
-    ex_index = pqrst_data['Ex_Index']
-    if 30<=hr_counts<=80:
-        block_label = block_check(r_label, pr_label, p_label, pr_interval, fs=fs)['Block_Label']
-    else:
-        block_label = "Abnormal"
-    lowpass_signal = lowpass(baseline_signal)
-    if block_label == "Abnormal": block_label = 'Normal' if r_label == 'Regular' else 'Abnormal'
-    data = {'Input_Signal':ecg_signal, 
-            'Baseline_Signal':baseline_signal, 
-            'Lowpass_signal':lowpass_signal, 
-            'Block_Label':block_label.upper().replace("_","-"), 
-            'RR_Label':r_label, 
-            'R_Index':r_index, 
-            'Q_Index':q_index, 
-            'S_Index':s_index, 
-            'J_Index':j_index,
-            'T_Index' : t_index,
-            'P_Index' : p_index,
-            'Ex_Index' : ex_index, 
-            'P_T':pt, 
-            'HR_Count':hr_counts}
-    return data
-
-
-
-
-
-
 def wide_qrss(q_index, r_index, s_index, fs=200):
     label = 'Abnormal'
     wideQRS = []
@@ -3100,7 +1958,6 @@ def wide_qrss(q_index, r_index, s_index, fs=200):
     thresold = round(fs * 0.12)
     for k in range(len(r_index)):
         diff = s_index[k] - q_index[k]
-        # print(diff)
         diff_arr.append(diff)
         if diff > thresold:
             wideQRS.append(r_index[k])
@@ -3137,10 +1994,6 @@ def wide_qrs_detection(ecg_signal, fs=200):
     wideqrs_data = wide_qrss(q_index, r_index, s_index, fs=200)
     
     return wideqrs_data
-
-
-
-
 
 def hamilton_segmenter(signal=None, sampling_rate=200.0):
     """
@@ -3439,18 +2292,14 @@ def hamilton_segmenter(signal=None, sampling_rate=200.0):
                 r_beats.append(twonegpeaks[0][1] + add)
         except IndexError:
             continue
-
     rpeaks = sorted(list(set(r_beats)))
     rpeaks = np.array(rpeaks, dtype="int")
-
     return utils.ReturnTuple((rpeaks,), ("rpeaks",))
-
 
 try:                        
     mycol = mydb["Test6"]
 except:
     pass
-
 
 
 def pacemaker_detect(ecg_signal, fs=200):
@@ -3521,55 +2370,26 @@ def pacemaker_detect(ecg_signal, fs=200):
 
     return label, pacemaker, r_index, q_index, s_index, p_index
 
-
-
-
 def find_r_peakss(ecg_signal,fs=200):
-
     """Finds R-peaks in an ECG signal using the Hamilton segmenter algorithm.
-
- 
-
     Args:
-
         ecg_signal (array): The ECG signal of numpy array
-
         fs (int, optional): sampling rate of the ECG signal, defaults to 200 (optional)
-
- 
-
     Returns:
-
         list: the R-peak indices of the ECG signal using the Hamilton QRS complex detector algorithm.
-
     """
-
     r_ = []
-
     out = hamilton_segmenter(signal=ecg_signal, sampling_rate=fs)
-
     r_index_ = out["rpeaks"]
-
     heart_rate = hr_count(ecg_signal, r_index_, fs=fs)
-
     diff_indexs = abs(round((fs * 0.4492537) + (heart_rate * -1.05518351) + 40.40601032654332))
-
-   
-
     for r in r_index_:
-
         if r - diff_indexs >= 0 and len(ecg_signal) >= r+diff_indexs:
-
             data = ecg_signal[r-diff_indexs:r+diff_indexs]
-
             abs_data = np.abs(data)
-
             r_.append(np.where(abs_data == max(abs_data))[0][0] + r-diff_indexs)
-
         else:
-
             r_.append(r)
-
     return np.unique(r_) if r_ else r_index_
 
 
@@ -3647,17 +2467,6 @@ def PACcounter(PAC_R_Peaks, hr_counts):
             "PAC-AT_counter":at_counter}
     return data
 
-
-def calculate_average(lst):
-    if len(lst) == 0:
-        return 0  # Handle empty list case
-
-    total_sum = sum(lst)
-    average = total_sum / len(lst)
-    return average
-
-
-
 def wide_qrs_find(q_index, r_index, s_index, hr_count, fs=200):
     """The distance between the QRS complex's Q wave and S wave.
 
@@ -3674,8 +2483,6 @@ def wide_qrs_find(q_index, r_index, s_index, hr_count, fs=200):
     R-peak indices and calculates the difference between
     """
     max_indexs = 0
-    # if hr_count<60:
-    # print(hr_count,"========hr")
     if hr_count <= 88:
         ms = 0.10
     else:
@@ -3692,10 +2499,8 @@ def wide_qrs_find(q_index, r_index, s_index, hr_count, fs=200):
             if diff>=max_indexs:
                 pvc.append(r_index[k])
 
-    # print("len_r_index", len(r_index), "wide_r_index", len(pvc))
     if hr_count <= 88:
         wide_r_index_per = len(pvc)/ len(r_index)
-        # print(wide_r_index_per,"=========wide_r_index_per")
         if wide_r_index_per < 0.8:
             pvc_index = np.array(pvc)
         else:
@@ -3730,8 +2535,6 @@ def wide_qrs_find_PAC(q_index, r_index, s_index, hr_count, fs=200):
     R-peak indices and calculates the difference between
     """
     max_indexs = 0
-    # if hr_count<60:
-    # print(hr_count,"========hr")
     if hr_count <= 88:
         ms = 0.19
     else:
@@ -3748,10 +2551,8 @@ def wide_qrs_find_PAC(q_index, r_index, s_index, hr_count, fs=200):
             if diff>=max_indexs:
                 pvc.append(r_index[k])
 
-    # print("len_r_index", len(r_index), "wide_r_index", len(pvc))
     if hr_count <= 88:
         wide_r_index_per = len(pvc)/ len(r_index)
-        # print(wide_r_index_per,"=========wide_r_index_per")
         if wide_r_index_per < 0.8:
             pvc_index = np.array(pvc)
         else:
@@ -3769,460 +2570,7 @@ def wide_qrs_find_PAC(q_index, r_index, s_index, hr_count, fs=200):
     q_s_difference = [i/200 for i in difference]
     return np.array(pvc_index), q_s_difference
 
-
-##def pac_model(ecg_signal, r_index, r_label, wide_qrs, model, fs):
-##    model_prediction = []
-##    model_check = []
-##    pac_pred = []
-##    pac_r = []
-##    sd, qd = int(fs * 0.115), int(fs * 0.08)
-##    s_index = find_s_newnew_index(ecg_signal, r_index, sd)
-##    q_index = find_q_newnew_index(ecg_signal, r_index, qd)
-##    diff_arr = np.diff(r_index)
-##    avg = np.mean(diff_arr)
-##    n = len(r_index)
-##    lowpass_signal = lowpass(ecg_signal, (fs * -0.00016964) + 0.20821429)
-##    i = 0
-##    if r_label == "Irregular":
-##        for q, _s, s, q_ in zip(q_index[:-1], s_index[:-1], s_index[1:], q_index[1:]):
-##            if diff_arr[i] < avg-n and r_index[i+1] not in wide_qrs:
-##            # if diff_arr[i] < avg: 
-##                model_check.append((q, s))
-##                data_with_r, data_without_r = lowpass_signal[q:s], lowpass_signal[_s:q_]
-##                if data_with_r.any() and data_without_r.any():
-##                    image_data1, image_data2 = image_array_new(data_with_r), image_array_new(data_without_r)
-##                    # image_data = (np.expand_dims(image_data1, axis=0), np.expand_dims(image_data2, axis=0))
-##                    image_data = (tf.expand_dims(image_data1, axis=0), tf.expand_dims(image_data2, axis=0))
-##                    image_data = (tf.cast(image_data[0], dtype=tf.float32), tf.cast(image_data[1], dtype=tf.float32))
-##                    model_pred = predict_tflite_model(model, image_data)[0]
-##                    label_pvc = np.argmax(model_pred)
-####                    model_prediction.append(f'{(_s, q_)}={model_pred}')
-##                    if label_pvc == 1:
-##                        pac_pred.append((q, s))
-##                        pac_r.append(1)
-##                    else:
-##                        pac_r.append(0)
-##                else:
-##                    pac_r.append(0)
-##            else:
-##                pac_r.append(0)
-##            i += 1
-##    else:
-##        for q, _s, s, q_ in zip(q_index[:-1], s_index[:-1], s_index[1:], q_index[1:]):
-##            data_with_r, data_without_r = lowpass_signal[q:s], lowpass_signal[_s:q_]
-##            if data_with_r.any() and data_without_r.any():
-##                image_data1, image_data2 = image_array_new(data_with_r), image_array_new(data_without_r)
-##                # image_data = (np.expand_dims(image_data1, axis=0), np.expand_dims(image_data2, axis=0))
-##                image_data = (tf.expand_dims(image_data1, axis=0), tf.expand_dims(image_data2, axis=0))
-##                image_data = (tf.cast(image_data[0], dtype=tf.float32), tf.cast(image_data[1], dtype=tf.float32))
-##                model_pred = predict_tflite_model(model, image_data)[0]
-##                label_pvc = np.argmax(model_pred)
-####                model_prediction.append(f'{(_s, q_)}={model_pred}')
-##                if label_pvc == 1:
-##                    pac_pred.append((_s, q_))
-##                    pac_r.append(1)
-##                else:
-##                    pac_r.append(0)
-##            else:
-##                pac_r.append(0)
-##    return pac_r
-##
-##def pac_model_check(baseline_signal, model, fs=200):
-##
-##    pqrst_data = pqrst_detection(baseline_signal, fs=fs)
-##    r_label = pqrst_data['R_Label'] 
-##    r_index = pqrst_data['R_index']
-##    q_index = pqrst_data['Q_Index']
-##    s_index = pqrst_data['S_Index']
-##    j_index = pqrst_data['J_Index']
-##    p_t = pqrst_data['P_T List']
-##    pt = pqrst_data['PT PLot']
-##    hr_counts = pqrst_data['HR_Count']
-##    t_index = pqrst_data['T_Index'] 
-##    p_index = pqrst_data['P_Index']
-##    ex_index = pqrst_data['Ex_Index'] 
-##    pr_interval = pqrst_data['PR_Interval'] 
-##    p_label = pqrst_data['P_Label']
-##    pr_label = pqrst_data['PR_label']
-##    
-##    wide_qrs, difference = wide_qrs_find_PAC(q_index, r_index, s_index, hr_counts, fs)
-##    
-##    if r_label == "Irregular" and hr_counts < 100:
-##        pac_model_data = pac_model(baseline_signal, r_index, r_label, wide_qrs, model, fs)
-##    elif r_label == "Regular" and hr_counts >= 130:
-##        pac_model_data = pac_model(baseline_signal, r_index, r_label, wide_qrs, model, fs)
-##    else:
-##        pac_label_model = ""
-##        pac_model_data  = []
-##    
-##    return pac_model_data
-
-def pac_model_GPU(ecg_signal, r_index, r_label, hr_counts, wide_qrs, model, fs):
-    pac_r = []
-    sd, qd = int(fs * 0.115), int(fs * 0.08)
-    s_index = find_s_newnew_index(ecg_signal, r_index, sd)
-    q_index = find_q_newnew_index(ecg_signal, r_index, qd)
-    diff_arr = np.diff(r_index)
-    avg = np.mean(diff_arr)
-    n = len(r_index)
-    lowpass_signal = lowpass(ecg_signal, (fs * -0.00016964) + 0.20821429)
-    i = 0
-    if hr_counts <= 80:
-        pac_thre = 0.10
-    else:
-        pac_thre = 0.12
-    print("wideqrs:",wide_qrs)
-##    plot_pac = []
-    if r_label == "Irregular":
-        for q, _s, s, q_ in zip(q_index[:-1], s_index[:-1], s_index[1:], q_index[1:]):
-            if diff_arr[i] < avg-n and r_index[i+1] not in wide_qrs and r_index[i] not in wide_qrs:
-            # if diff_arr[i] < avg: 
-                data_with_r, data_without_r = lowpass_signal[q:s], lowpass_signal[_s:q_]
-               
-                if data_with_r.any() and data_without_r.any():
-                    image_data1, image_data2 = image_array_new(data_with_r), image_array_new(data_without_r)
-                    # image_data = (np.expand_dims(image_data1, axis=0), np.expand_dims(image_data2, axis=0))
-                    image_data = (tf.expand_dims(image_data1, axis=0), tf.expand_dims(image_data2, axis=0))
-                    image_data = (tf.cast(image_data[0], dtype=tf.float32), tf.cast(image_data[1], dtype=tf.float32))
-##                    image_data = (image_data1.reshape((1,) + image_data1.shape).astype('float32'), image_data2.reshape((1,) + image_data2.shape).astype('float32'))
-                    model_pred = predict_tflite_model(model, image_data)[0]
-                    label_pvc = np.argmax(model_pred)
-                    if label_pvc == 0:
-##                        diff = s - q_
-##                        print(diff/fs,"========diff_irr")
-##                        if (diff/fs) > pac_thre:
-##                            pac_r.append(0)
-##                        else:
-##                            plot_pac.append((_s, q_))
-                            pac_r.append(1)
-                    else:
-                        pac_r.append(0)
-                    del image_data1, image_data2, image_data, data_with_r, data_without_r
-                else:
-                    pac_r.append(0)
-            else:
-                pac_r.append(0)
-            i += 1
-    else:
-        for q, _s, s, q_ in zip(q_index[:-1], s_index[:-1], s_index[1:], q_index[1:]):
-            data_with_r, data_without_r = lowpass_signal[q:s], lowpass_signal[_s:q_]
-            if data_with_r.any() and data_without_r.any():
-                image_data1, image_data2 = image_array_new(data_with_r), image_array_new(data_without_r)
-                # image_data = (np.expand_dims(image_data1, axis=0), np.expand_dims(image_data2, axis=0))
-                image_data = (tf.expand_dims(image_data1, axis=0), tf.expand_dims(image_data2, axis=0))
-                image_data = (tf.cast(image_data[0], dtype=tf.float32), tf.cast(image_data[1], dtype=tf.float32))
-##                image_data = (image_data1.reshape((1,) + image_data1.shape).astype('float32'), image_data2.reshape((1,) + image_data2.shape).astype('float32'))
-                model_pred = predict_tflite_model(model, image_data)[0]
-                label_pvc = np.argmax(model_pred)
-                if label_pvc == 0:
-##                    diff = s - q_
-##                    print(diff,"============regu_diff")
-##                    if (diff/fs) > pac_thre:
-##                        pac_r.append(0)
-##                    else:
-                        pac_r.append(1)
-                else:
-                    pac_r.append(0)
-                del image_data1, image_data2, image_data, data_with_r, data_without_r
-            else:
-                pac_r.append(0)
-##    pac_data = PACcounter(pac_r, hr_counts)
-##    pac_data['PAC_Union'] = pac_r
-##    print("PAC:",pac_r)
-    return pac_r
-
-def pac_model_check(baseline_signal, model, fs=200):
-
-    pqrst_data = pqrst_detection(baseline_signal, fs=fs)
-    r_label = pqrst_data['R_Label'] 
-    r_index = pqrst_data['R_index']
-    q_index = pqrst_data['Q_Index']
-    s_index = pqrst_data['S_Index']
-    j_index = pqrst_data['J_Index']
-    p_t = pqrst_data['P_T List']
-    pt = pqrst_data['PT PLot']
-    hr_counts = pqrst_data['HR_Count']
-    t_index = pqrst_data['T_Index'] 
-    p_index = pqrst_data['P_Index']
-    ex_index = pqrst_data['Ex_Index'] 
-    pr_interval = pqrst_data['PR_Interval'] 
-    p_label = pqrst_data['P_Label']
-    pr_label = pqrst_data['PR_label']
-    
-    wide_qrs, difference = wide_qrs_find_PAC(q_index, r_index, s_index, hr_counts, fs)
-    
-##    if r_label == "Irregular" and hr_counts < 125:
-##        pac_model_data = pac_model(baseline_signal, r_index, r_label, wide_qrs, model, fs)
-##    elif r_label == "Regular" and hr_counts >= 130:
-##        pac_model_data = pac_model(baseline_signal, r_index, r_label, wide_qrs, model, fs)
-##    else:
-##        pac_model_data  = []
-
-    if r_label == "Irregular" and hr_counts < 190:
-        pac_model_data = pac_model_GPU(baseline_signal, r_index, r_label, hr_counts, wide_qrs, model, fs)
-    elif r_label == "Regular" and hr_counts >= 120:
-        pac_model_data = pac_model_GPU(baseline_signal, r_index, r_label, hr_counts, wide_qrs, model, fs)
-    else:
-        pac_label_model = []
-
-
-    return pac_model_data
-
-
-def pac_new_model_check(ecg_signal, model, fs=200):
-    if fs != 200:
-        ecg_signal = MinMaxScaler(feature_range=(0,4)).fit_transform(ecg_signal.reshape(-1,1)).squeeze()
-    if fs == 200:
-        baseline_signal = baseline_construction_200(ecg_signal, 101)
-    elif fs == 250:
-        baseline_signal = baseline_reconstruction_250(ecg_signal, 131)
-    elif fs == 360:
-        baseline_signal = baseline_construction_200(ecg_signal, 151)
-    else:
-        baseline_signal = baseline_construction_200(ecg_signal, 101)
-    
-    return pac_model_check(baseline_signal, model, fs=200)
-##def get_combined_union(ecg_signal, r_index, r_label, wide_qrs, model, Tpeaks, Ppeaks, newlist, waves_dwt, Tdwt, Pdwt, fs):
-##    listpaca = []
-##    
-##    for xa in Tpeaks:
-##        if xa!=np.isnan(xa) and Tpeaks[-1]!=np.isnan(Ppeaks[-1]) and Ppeaks[Tpeaks.index(xa)+1]==np.isnan(Ppeaks[Tpeaks.index(xa)+1]):
-##            listpaca.append(1)
-##        elif xa in Ppeaks and not np.isnan(xa) and xa!=0:
-##            listpaca.append(1)
-##        else:
-##            listpaca.append(0)
-##    if 1 in listpaca:
-##        xy = diff(Ppeaks,Tpeaks)
-##        xyoff = diffoff(Ppeaks, waves_dwt['ECG_T_Offsets'])
-##        xyoff.append(listpaca[-1])
-##
-##        finallist = []
-##        for val1 in range(len(listpaca)):
-##            if 1 in (listpaca[val1],):
-##                finallist.append(1)
-##            else:
-##                finallist.append(0)
-##        if xyoff.count(1)>4 and listpac.count(1)>4: 
-##            union = [0] * max(len(listpac), len(xy), len(xyoff))
-##            try:
-##                for i in range(len(union)-1):
-##                    union[i] = listpac[i] | xy[i] | xyoff[i]
-##            except:
-##                for i in range(len(union)-2):
-##                    union[i] = listpac[i] | xy[i] | xyoff[i]
-##                
-##        elif xyoff.count(1)<=2:
-##            union = [0] * max(len(listpac), len(xy), len(xyoff))
-##            try:
-##                for i in range(len(union)-1):
-##                    union[i] = listpac[i] | xy[i] | xyoff[i]
-##            except:
-##                for i in range(len(union)-2):
-##                    union[i] = listpac[i] | xy[i] | xyoff[i]
-##
-##
-##        else:
-##            union = [0] * max(len(listpac), len(xy))
-##            try:
-##                for i in range(len(union)-1):
-##                    union[i] = listpaca[i] | xy[i]
-##            except:
-##                for i in range(len(union)-2):
-##                    union[i] = listpaca[i] | xy[i]
-##
-##        # print("PAC:", union)
-##        # pac_data = PACcounter(union, hr_counts)
-##        # print('listpaca : ', listpaca)
-##    else:
-##        listpac = []
-##        for xa in Tdwt:
-##            if xa in Pdwt and not np.isnan(xa) and xa!=0:
-##                    listpac.append(1)
-##            else:
-##                    listpac.append(0)
-##        xy = diff(Pdwt,Tdwt)
-##        xyoff = diffoff(Pdwt,waves_dwt['ECG_T_Offsets'])
-##        xyoff.append(listpac[-1])
-##
-##        finallist = []
-##        for val1 in range(len(listpac)):
-##            if 1 in (listpac[val1],):
-##                finallist.append(1)
-##            else:
-##                finallist.append(0)
-##        if xyoff.count(1)>4 and listpac.count(1)>4: 
-##            union = [0] * max(len(listpac), len(xy), len(xyoff))
-##            try:
-##                for i in range(len(union)-1):
-##                    union[i] = listpac[i] | xy[i] | xyoff[i]
-##            except:
-##                for i in range(len(union)-2):
-##                    union[i] = listpac[i] | xy[i] | xyoff[i]
-##                
-##        elif xyoff.count(1)<=2:
-##            union = [0] * max(len(listpac), len(xy), len(xyoff))
-##            try:
-##                for i in range(len(union)-1):
-##                    union[i] = listpac[i] | xy[i] | xyoff[i]
-##            except:
-##                for i in range(len(union)-2):
-##                    union[i] = listpac[i] | xy[i] | xyoff[i]
-##
-##
-##        else:
-##            union = [0] * max(len(listpac), len(xy))
-##            try:
-##                for i in range(len(union)-1):
-##                    union[i] = listpaca[i] | xy[i]
-##            except:
-##                for i in range(len(union)-2):
-##                    union[i] = listpaca[i] | xy[i]
-##        # pac_data = PACcounter(union, hr_counts)
-##        # print('listpac : ', listpac)
-##    updated_union = [n if u==n else 0 for u, n in zip(union, newlist)]
-##    model_union = pac_model(ecg_signal, r_index, r_label, wide_qrs, model, fs)
-##    combine_union = [1 if a==1 or m==1 else 0 for a, m in zip(updated_union, model_union)]
-##    print(comnine_union)
-##    return combine_union
-
-##def detection_PAC(baseline_signal, r_index, r_label, q_index, s_index, p_t, hr_counts, model, fs=200):
-##    lowpass_signal = lowpass(baseline_signal, 0.2)
-##    _, waves_peak = nk.ecg_delineate(lowpass_signal, r_index, sampling_rate=fs, method="peak")
-##    signal_dwt, waves_dwt = nk.ecg_delineate(lowpass_signal, r_index, sampling_rate=fs, method="dwt")
-##    aped=[]
-##    for i in range(len(r_index)-1):
-##        m=r_index[i+1]-r_index[i]
-##        aped.append(m*5/1000)
-##
-##    variation=[]
-##    rrint=''
-##    for i in range(len(aped)-1):
-##        
-##        variation.append(get_percentage_diff(aped[i+1],aped[i]))
-##    
-##    if Average(variation)>8:
-##        rrint = "IRREGULAR"
-##    else:
-##        rrint = "REGULAR"
-##
-##    Tpeaks = np.where(np.isnan(waves_peak['ECG_T_Peaks']), 0, waves_peak['ECG_T_Peaks']).astype('int64').tolist()
-##    Ppeaks = np.where(np.isnan(waves_peak['ECG_P_Peaks']), 0, waves_peak['ECG_P_Peaks']).astype('int64').tolist()
-##    Tdwt = np.where(np.isnan(waves_dwt['ECG_T_Peaks']), 0, waves_dwt['ECG_T_Peaks']).astype('int64').tolist()
-##    Pdwt = np.where(np.isnan(waves_dwt['ECG_P_Peaks']), 0, waves_dwt['ECG_P_Peaks']).astype('int64').tolist()
-##
-##    
-##    wide_qrs, difference = wide_qrs_find(q_index, r_index, s_index, hr_counts, fs)
-##    inter_peak_intervals = np.diff(r_index)
-##    if calculate_average(inter_peak_intervals)>260:
-##            threshold =256#230  # Adjust the threshold as needed
-##    else:
-##            threshold = 200
-##    # print(inter_peak_intervals)
-##    pac_indices = np.where(inter_peak_intervals < threshold)[0]
-##    # print(calculate_average(inter_peak_intervals),pac_indices)
-##    # _, wideQRS_index = wide_qrs(q_index, r_index, s_index, fs=fs)
-##    pac_positions = r_index[pac_indices]
-##    newlist = [1 if (r_index[i] in pac_positions) and (r_index[i] not in wide_qrs) else 0 for i in range(len(r_index))]
-##    dwt=[]
-##    for i in range(len(Tdwt)-1):
-##        m=Tdwt[i+1]-Pdwt[i]
-##        dwt.append(m/fs)
-##    # print("TimeStemp : ", dwt)
-##    if rrint=="IRREGULAR":
-##        
-##        combine_union = get_combined_union(baseline_signal, r_index, r_label, wide_qrs, model, Tpeaks, Ppeaks, newlist, waves_dwt, Tdwt, Pdwt, fs)
-##        pac_data = PACcounter(combine_union, hr_counts)
-##        
-##        pac_data['PAC_Union'] = combine_union
-##        pac_plot_index = []
-##        if hr_counts < 100:
-##            for i in range(len(combine_union)):
-##                if combine_union[i] != 0:
-##                    pac_plot_index.append(p_t[i][-1])
-##        pac_data["PAC_Index"] = pac_plot_index
-##        # print('union : ', union,"new_list",newlist,"up_union",updated_union)
-##        return pac_data
-##    else:
-##        at = 0
-##        combine_union = get_combined_union(baseline_signal, r_index, r_label, wide_qrs, model, Tpeaks, Ppeaks, newlist, waves_dwt, Tdwt, Pdwt, fs)
-##        ones_count = combine_union.count(1)
-##        pac_plot_index = []
-##        percent = round((ones_count/len(combine_union))*100)
-##        if percent >= 70 and hr_counts >= 130:
-##            at = 1
-##            for i in range(len(combine_union)):
-##                if combine_union[i] != 0:
-##                    pac_plot_index.append(p_t[i][-1])
-##        data = {
-##            'PAC_Union':combine_union,
-##            "PAC_Index":pac_plot_index,
-##            "PAC-ISO_counter":0,
-##            "PAC-Bigem_counter":0,
-##            "PAC-Trigem_counter":0,
-##            "PAC-Quadrigem_counter":0,
-##            "PAC-Couplet_counter":0,
-##            "PAC-Triplet_counter":0,
-##            "PAC-AT_counter":at }
-##        return data
-
-##def get_pac_data(baseline_signal, r_index, r_label, q_index, s_index, p_t, hr_counts, model, fs=200):
-##    
-##    pac_data = detection_PAC(baseline_signal, r_index, r_label, q_index, s_index, p_t, hr_counts, model, fs)
-####    c_label = '; '.join([key.split('_')[0] for key, val in pac_data.items() if 'counter' in key and val > 0])
-####    if c_label == '':
-####        return "Abnormal"
-##    
-##    return pac_data
-##
-##def get_pac_result(ecg_signal, model, fs=200):
-##    if fs != 200:
-##        ecg_signal = MinMaxScaler(feature_range=(0,4)).fit_transform(ecg_signal.reshape(-1,1)).squeeze()
-##    if fs == 200:
-##        baseline_signal = baseline_construction_200(ecg_signal, 101)
-##
-##    pqrst_data = pqrst_detection(baseline_signal, fs=fs)
-##    r_label = pqrst_data['R_Label'] 
-##    r_index = pqrst_data['R_index']
-##    q_index = pqrst_data['Q_Index']
-##    s_index = pqrst_data['S_Index']
-##    # j_index = pqrst_data['J_Index']
-##    p_t = pqrst_data['P_T List']
-##    # pt = pqrst_data['PT PLot']
-##    hr_counts = pqrst_data['HR_Count']
-##    
-##    
-##    
-##    c_label = get_pac_data(baseline_signal, r_index, r_label, q_index, s_index, p_t, hr_counts, model, fs=200)
-##
-##    return c_label
-
-def plot_to_imagearray(ecg_signal):
-    fig, ax = plt.subplots(num=1,clear=True,layout ="constrained")
-    ax.plot(ecg_signal)
-    ax.axis(False)
-
-    fig.canvas.draw()            # Convert the plot to a RGB array
-    data = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
-    data = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
-    data1 = data[:,:,::-1]
-    fig.clear()
-    ax.clear()
-    fig.clf()
-    plt.close(fig)
-    plt.close()
-    fig.canvas.flush_events()
-    plt.pause(0.01)
-    del fig
-    del ax
-    del data
-    return data1
-
-
-
-
 class FilterSignal:
-    
     def __init__(self, ecg_signal, fs = 200):
         self.ecg_signal = ecg_signal
         self.fs = fs
@@ -4287,8 +2635,6 @@ class pqrst_detections:
         self.width = width
     
     def hamilton_segmenter(self):
-
-        # check inputs
         if self.ecg_signal is None:
             raise TypeError("Please specify an input signal.")
 
@@ -4296,7 +2642,6 @@ class pqrst_detections:
         length = len(self.ecg_signal)
         dur = length / sampling_rate
 
-        # algorithm parameters
         v1s = int(1.0 * sampling_rate)
         v100ms = int(0.1 * sampling_rate)
         TH_elapsed = np.ceil(0.36 * sampling_rate)
@@ -5063,8 +3408,6 @@ class pqrst_detections:
                 'inv_t_index': self.inv_t_index}
         return data
 
-
-
 class block_detection:
     def __init__(self, ecg_signal, fs):
         self.ecg_signal = ecg_signal
@@ -5190,129 +3533,6 @@ class block_detection:
             label = "Mobitz II"
         return label
 
-    # def image_array_new(self, signal, scale=25):
-    #     scales = np.arange(1, scale, 1)
-    #     coef, freqs = pywt.cwt(signal, scales, 'gaus6')
-    #     # coef, freqs = pywt.cwt(signal, scales, wavelet_name)
-    #     abs_coef = np.abs(coef)
-    #     y_scale = abs_coef.shape[0] / 224
-    #     x_scale = abs_coef.shape[1] / 224
-    #     x_indices = np.arange(224) * x_scale
-    #     y_indices = np.arange(224) * y_scale
-    #     x, y = np.meshgrid(x_indices, y_indices, indexing='ij')
-    #     x = x.astype(int)
-    #     y = y.astype(int)
-    #     rescaled_coef = abs_coef[y, x]
-    #     min_val = np.min(rescaled_coef)
-    #     max_val = np.max(rescaled_coef)
-    #     normalized_coef = (rescaled_coef - min_val) / (max_val - min_val)
-    #     cmap_indices = (normalized_coef * 256).astype(np.uint8)
-    #     cmap = colormaps.get_cmap('viridis')
-    #     rgb_values = cmap(cmap_indices)
-    #     image = rgb_values.reshape((224, 224, 4))[:, :, :3]
-    #     denormalized_image = (image * 254) + 1
-    #     rotated_image = np.rot90(denormalized_image, k=1, axes=(1, 0))
-    #     return rotated_image.astype(np.uint8)
-
-    # def predict_tflite_model(self, model: tuple, input_data: tuple):
-    #     with results_lock:
-    #         interpreter, input_details, output_details = model
-    #         for i in range(len(input_data)):
-    #             interpreter.set_tensor(input_details[i]['index'], input_data[i])
-    #         interpreter.invoke()
-    #         output = interpreter.get_tensor(output_details[0]['index'])
-
-    #     return output
-
-    # def check_model(self, q_new, s_new, ecg_signal, last_s, last_q, newsublist):
-    #     percent = {'ABNORMAL': 0, '1st_DEG': 0, '2nd_DEG': 0, '3rd_DEG': 0, 'NOISE': 0}
-    #     total_data = len(self.s_index) - 1
-    #     first_deg_data_index, second_deg_data_index, third_deg_data_index = [], [], []
-
-    #     raw_date_time = newsublist["DateTime"]
-
-    #     for q, s in zip(q_new, s_new):
-    #         data = ecg_signal[q:s]
-    #         if data.any():
-    #             image_data = self.image_array_new(data)
-    #             image_data = (tf.expand_dims(image_data.astype(np.float32), axis=0),)
-    #             model_pred = self.predict_tflite_model(block_load_model, image_data)[0]
-    #             model_idx = np.argmax(model_pred)
-
-    #             if model_idx == 0:
-    #                 if last_s and s > last_s[0]:
-    #                     percent['ABNORMAL'] += last_s[1] / total_data
-    #                 else:
-    #                     percent['ABNORMAL'] += 4 / total_data
-    #             elif model_idx == 1:
-    #                 if last_s and s > last_s[0]:
-    #                     percent['1st_DEG'] += last_s[1] / total_data
-    #                     q_start_time = raw_date_time[last_q]
-    #                     s_end_time = raw_date_time[s]
-    #                     first_deg_data_index.append({"StartTime": int(q_start_time),
-    #                                      "EndTime": int(s_end_time)})
-    #                 else:
-    #                     percent['1st_DEG'] += 4 / total_data
-    #                     percent['1st_DEG'] += 4 / total_data
-    #                     q_start_time = raw_date_time[q]
-    #                     s_end_time = raw_date_time[s]
-    #                     first_deg_data_index.append({"StartTime": int(q_start_time),
-    #                                      "EndTime": int(s_end_time)})
-    #             elif model_idx == 2:
-    #                 if last_s and s > last_s[0]:
-    #                     percent['2nd_DEG'] += last_s[1] / total_data
-    #                     q_start_time = raw_date_time[last_q]
-    #                     s_end_time = raw_date_time[s]
-    #                     second_deg_data_index.append({"StartTime": int(q_start_time),
-    #                                      "EndTime": int(s_end_time)})
-    #                 else:
-    #                     percent['2nd_DEG'] += 4 / total_data
-    #                     percent['2nd_DEG'] += 4 / total_data
-    #                     q_start_time = raw_date_time[q]
-    #                     s_end_time = raw_date_time[s]
-    #                     second_deg_data_index.append({"StartTime": int(q_start_time),
-    #                                                   "EndTime": int(s_end_time)})
-    #             elif model_idx == 3:
-    #                 if last_s and s > last_s[0]:
-    #                     percent['3rd_DEG'] += last_s[1] / total_data
-    #                     q_start_time = raw_date_time[last_q]
-    #                     s_end_time = raw_date_time[s]
-    #                     third_deg_data_index.append({"StartTime": int(q_start_time),
-    #                                      "EndTime": int(s_end_time)})
-    #                 else:
-    #                     percent['3rd_DEG'] += 4 / total_data
-    #                     q_start_time = raw_date_time[q]
-    #                     s_end_time = raw_date_time[s]
-    #                     third_deg_data_index.append({"StartTime": int(q_start_time),
-    #                                                  "EndTime": int(s_end_time)})
-    #             elif model_idx == 4:
-    #                 if last_s and s > last_s[0]:
-    #                     percent['NOISE'] += last_s[1] / total_data
-    #                 else:
-    #                     percent['NOISE'] += 4 / total_data
-
-    #     return percent, first_deg_data_index, second_deg_data_index,third_deg_data_index
-
-    # def get_data(self, newsublist):
-    #     total_data = len(self.s_index) - 1
-    #     last_s = None
-    #     last_q = None
-    #     check_2nd_lead = {'ABNORMAL': 0, '1st_DEG': 0, '2nd_DEG': 0, '3rd_DEG': 0, 'NOISE': 0}
-    #     first_deg_data_index = second_deg_data_index = third_deg_data_index = []
-    #     if len(self.q_index) > 4 and len(self.s_index) > 4:
-    #         q_new = self.q_index[:-4:4].tolist()
-    #         s_new = self.s_index[4::4].tolist()
-    #         if s_new[-1] != self.s_index[-1]:
-    #             temp_s = list(self.s_index).index(s_new[-1])
-    #             fin_s = total_data - temp_s
-    #             last_q = self.q_index[temp_s]
-    #             last_s = (s_new[-1], fin_s)
-    #             q_new.append(self.q_index[-5])
-    #             s_new.append(self.s_index[-1])
-    #         check_2nd_lead, first_deg_data_index, second_deg_data_index,third_deg_data_index = self.check_model(q_new, s_new, self.baseline_signal,last_s, last_q, newsublist)
-
-    #     return check_2nd_lead, first_deg_data_index, second_deg_data_index,third_deg_data_index
-        
     # Block new trans model for added 
     def prediction_model_block(self, input_arr):
         classes = ['1st_deg', '2nd_deg', '3rd_deg', 'abnormal', 'normal']
@@ -5357,56 +3577,9 @@ class block_detection:
                 ei_ti_label.append('2nd degree')
             if 0.40 < float(predictions[0]) < 0.70:
                 ei_ti_label.append('1st degree')
-            if 0.40 < float(predictions[3]) < 0.70:
+            if 0.40 < float(predictions[2]) < 0.70:
                 ei_ti_label.append('3rd degree')
         return label, ei_ti_label, predictions
-
-
-# def block_model_check(ecg_signal, frequency, abs_result, newsublist):
-#     block_final_label = 'Abnormal'
-#     first_deg_per = second_deg_per = third_deg_per = abanormal_per = noise_per = 0
-#     first_deg_data_index = second_deg_data_index = third_deg_data_index = []
-#     get_block = block_detection(ecg_signal, frequency)
-#     block_percent,  first_deg_data_index, second_deg_data_index,third_deg_data_index = get_block.get_data(newsublist)
-#     first_deg_per = int(block_percent['1st_DEG'] * 100)
-#     second_deg_per = int(block_percent['2nd_DEG'] * 100)
-#     third_deg_per = int(block_percent['3rd_DEG'] * 100)
-#     abanormal_per = int(block_percent['ABNORMAL'] * 100)
-#     noise_per = int(block_percent['NOISE'] * 100)
-#     model_label = 'Abnormal'
-#     ei_ti_block = []
-#     if first_deg_per >= 70 and abs_result!="Abnormal":
-#         model_label = 'I DEGREE'
-        
-#     if second_deg_per >=70 and (abs_result == '' or abs_result == 'Mobitz II'):
-#         if abs_result=="Mobitz I":
-#             model_label = 'MOBITZ-I'
-#         if abs_result=="Mobitz II":
-#             model_label = 'MOBITZ-II'
-#     if third_deg_per >= 70 and abs_result!="Abnormal":
-#         model_label = 'III Degree'
-
-#     if first_deg_per >= 40 and first_deg_per<70 and abs_result!="Abnormal":
-#         model_label = 'I DEGREE'
-#         for first_deg_data in first_deg_data_index:
-#             ei_ti_block.append({"Arrhythmia":"I DEGREE","startTime":first_deg_data["StartTime"],"endTime":first_deg_data["EndTime"],"percentage":first_deg_per})
-        
-#     if second_deg_per>40 and second_deg_per<70 and (abs_result == 'Mobitz I' or abs_result == 'Mobitz II'):
-#         if abs_result=="Mobitz I":
-#             model_label = 'MOBITZ-I'
-#             for second_deg_data in second_deg_data_index:
-#                 ei_ti_block.append({"Arrhythmia":"MOBITZ-I","startTime":second_deg_data["StartTime"],"endTime":second_deg_data["EndTime"],"percentage":second_deg_per})
-            
-#         if abs_result=="Mobitz II":
-#             model_label = 'MOBITZ-II'        
-#             for second_deg_data in second_deg_data_index:
-#                 ei_ti_block.append({"Arrhythmia":"MOBITZ-II","startTime":second_deg_data["StartTime"],"endTime":second_deg_data["EndTime"],"percentage":second_deg_per})
-
-#     if third_deg_per>40 and third_deg_per<70 and abs_result!="Abnormal":
-#         model_label = 'III Degree'
-#         for third_deg_data in third_deg_data_index:
-#             ei_ti_block.append({"Arrhythmia":"III Degree","startTime":third_deg_data["StartTime"],"endTime":third_deg_data["EndTime"],"percentage":third_deg_per})
-#     return model_label,ei_ti_block
 
 # Block new trans model, need to add 80/20 approach
 def block_model_check(ecg_signal, frequency, abs_result):
@@ -5452,117 +3625,6 @@ def block_process(ecg_signal, frequency):
         third_deg_check = get_block.third_degree_block_deetection()
         abs_result = third_deg_check
     return abs_result
-
-class RPeakDetection:
-    def __init__(self, baseline_signal, fs = 200):
-        self.baseline_signal = baseline_signal
-        self.fs = fs
-        
-
-    def butter_bandpass(self, lowcut, highcut, fs, order=5):
-        nyq = 0.5 * fs
-        low = lowcut / nyq
-        high = highcut / nyq
-        b, a = butter(order, [low, high], btype='band')
-        return b, a
-
-    def butter_bandpass_filter(self, data, lowcut, highcut, fs, order=5):
-        b, a = self.butter_bandpass(lowcut, highcut, fs, order=order)
-        y = filtfilt(b, a, data)
-        return y
-
-    def find_r_peak(self):
-        lowcut = 0.5
-        highcut = 50.0
-        filtered_signal = self.butter_bandpass_filter(self.baseline_signal, lowcut, highcut, self.fs, order=6)
-        # Step 3: R-Peak Detection
-        out = hami.hamilton_segmenter(filtered_signal, sampling_rate=self.fs)
-        rpeaks = hami.correct_rpeaks(filtered_signal, out[0], sampling_rate=self.fs, tol=0.1)
-        r_peaks = rpeaks[0].tolist()
-        return r_peaks
-
-
-
-class MIDetection:
-    def __init__(self, baseline_signal, r_index, fs = 200):
-        self.baseline_signal = baseline_signal
-        self.r_index = r_index
-        self.fs = fs
-
-    def check_mi(self):
-        try:
-            _, waves_peak = nk.ecg_delineate(self.baseline_signal, self.r_index, sampling_rate=self.fs, method="peak")
-
-            Speaks = np.where(np.isnan(waves_peak['ECG_S_Peaks']), 0, waves_peak['ECG_S_Peaks']).astype('int64').tolist()
-            Tpeaks = np.where(np.isnan(waves_peak['ECG_T_Peaks']), 0, waves_peak['ECG_T_Peaks']).astype('int64').tolist()
-        except:
-            label ="Abnormal"
-            print("<<<<<<<<<<<<<<<<<<<<<<<<< something wrong >>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-            return label
-
-        mi_counter = 0  # Counter for MI detections
-        for r_peak, t_peak in zip(self.r_index, Tpeaks):
-            mid_value = (self.baseline_signal[r_peak] + self.baseline_signal[Speaks[Tpeaks.index(t_peak)]]) / 2  # Calculate mid value
-            
-            if self.baseline_signal[t_peak] > mid_value: # Compare T peak to mid value
-                mi_counter += 1
-        
-        mi_percentage = (mi_counter / len(self.r_index)) * 100
-        
-        anterior = []
-        posterior = []
-        if mi_percentage >= 52:
-            for i in range(len(self.r_index)-1):
-                area = trapz(self.baseline_signal[self.r_index[i]:Tpeaks[i]+1])
-                if round(area, 2) < 12:
-                    anterior.append(round(area,2))
-                elif  12 <= round(area, 2) <= 30:
-                    posterior.append(round(area, 2))
-
-        anterior_per = (len(anterior)/len(self.r_index))*100
-        posterior_per = (len(posterior)/len(self.r_index))*100
-        if posterior_per >= 70:
-            label = "Posterior"
-        elif anterior_per >= 70:
-            label = "Anterior"
-        else:
-            label = "Abnormal"
-        return label
-
-def process_signal(ecg_signal, frequency):
-    baseline_signal, lowpass_signal = FilterSignal(ecg_signal, frequency).get_data()
-
-    r_index = RPeakDetection(baseline_signal, frequency).find_r_peak()
-    st_segmnet = STSegmentDetection(baseline_signal, r_index, frequency).get_data()
-    final_label=''
-    mi_label=''
-##    print(st_segmnet['label'],"<<<<<<<<<<<<<<<<< st_segmnet_label >>>>>>>>>>>>>>>>>>>>")
-    if st_segmnet['label'] == 'ST Segment Elevation' or st_segmnet['label'] == 'ST Segment Depression upsloping':
-        st_label = 'STEMI'
-        mi_label = MIDetection(baseline_signal, r_index, frequency).check_mi()
-##        print(mi_label,"<<<<<<<<<<<<<<<< mi_label >>>>>>>>>>>>>>>>>>>")
-##        st_label = f"{st_label}({mi_label})"
-    elif st_segmnet['label'] == 'ST Segment Depression downsloping' or st_segmnet['label'] == 'ST Segment Depression horizontal':
-        st_label = 'NSTEMI'
-    else:
-        st_label = 'Abnormal'
-        
-    if mi_label=="Posterior" and st_label == "STEMI":
-        final_label = "Posterior STEMI"
-    elif mi_label=="Anterior" and st_label == "STEMI":
-        final_label = "Anterior STEMI"
-    elif mi_label == "Anterior" and st_label == "NSTEMI":
-        final_label = "Anterior NSTEMI"
-    elif mi_label == "Posterior" and st_label == "NSTEMI":
-        final_label = "Posterior NSTEMI"
-    elif mi_label == "Abnormal" and st_label == "STEMI":
-        final_label = "STEMI"
-    elif mi_label == "Abnormal" and st_label == "NSTEMI":
-        final_label = "NSTEMI"
-        
-    return final_label
-
-
 
 class afib_flutter_detection:
     def __init__(self, ecg_signal, r_index, q_index, s_index,p_index, p_t,pr_interval, load_model):
@@ -5713,50 +3775,12 @@ class afib_flutter_detection:
 
         return percent, afib_data_index, flutter_data_index
 
-
-##    def check_model(self, q_new, s_new, ecg_signal, last_s):
-##        percent = {'ABNORMAL': 0,'AFIB': 0, 'FLUTTER': 0, 'NOISE': 0, 'NORMAL': 0}
-##        total_data = len(self.s_index)-1
-##        for q, s in zip(q_new, s_new):
-##            data = ecg_signal[q:s]
-##            if data.any():
-##                image_data = self.image_array_new(data)
-##                image_data = (tf.expand_dims(image_data.astype(np.float32), axis=0),)
-##                model_pred = self.predict_tflite_model(self.load_model, image_data)[0]
-##
-##                model_idx = np.argmax(model_pred)
-##                if model_idx == 0:
-##                    if last_s and s > last_s[0]:
-##                        percent['ABNORMAL'] += last_s[1] / total_data
-##                    else:
-##                        percent['ABNORMAL'] += 4 / total_data
-##                elif model_idx == 1:
-##                    if last_s and s > last_s[0]:
-##                        percent['AFIB'] += last_s[1] / total_data
-##                    else:
-##                        percent['AFIB'] += 4 / total_data
-##                elif model_idx == 2:
-##                    if last_s and s > last_s[0]:
-##                        percent['FLUTTER'] += last_s[1] / total_data
-##                    else:
-##                        percent['FLUTTER'] += 4 / total_data
-##                elif model_idx == 3:
-##                    if last_s and s > last_s[0]:
-##                        percent['NOISE'] += last_s[1] / total_data
-##                    else:
-##                        percent['NOISE'] += 4 / total_data
-##                elif model_idx == 4:
-##                    if last_s and s > last_s[0]:
-##                        percent['NORMAL'] += last_s[1] / total_data
-##                    else:
-##                        percent['NORMAL'] += 4 / total_data
-##        return percent
-
     def get_data(self, newsublist):
         total_data = len(self.s_index)-1
         last_s = None
         last_q = None
         check_2nd_lead = {}
+        afib_data_index= []
         if len(self.q_index) > 4 and len(self.s_index) > 4:
             q_new  = self.q_index[:-4:4].tolist()
             s_new = self.s_index[4::4].tolist()
@@ -5769,8 +3793,6 @@ class afib_flutter_detection:
                 s_new.append(self.s_index[-1])
             check_2nd_lead,afib_data_index, flutter_data_index = self.check_model(q_new, s_new, self.ecg_signal, last_s,last_q, newsublist)         
         return check_2nd_lead,afib_data_index, flutter_data_index
-
-##@time_wrapper
 
 def afib_fultter_model_check(ecg_signal, load_model,  frequency, newsublist):
     baseline_signal, lowpass_signal = FilterSignal(ecg_signal, frequency).get_data()
@@ -5808,8 +3830,6 @@ def afib_fultter_model_check(ecg_signal, load_model,  frequency, newsublist):
         if flutter_per>55 and flutter_per<70:
             for flutter_data in flutter_data_index:
                 ei_ti.append({"Arrhythmia":"AFL","startTime":flutter_data["StartTime"],"endTime":flutter_data["EndTime"],"percentage":flutter_per})
-#        else:
-#            label = "Abnormal"
             
         return label,ei_ti
     else:
@@ -5822,8 +3842,6 @@ def noise_check_again(ecg_signal):
         outputss = np.where(abs(medfilt1)>0.40, 1, 0)
         final_label = 'high_noise_recovery' if outputss.any() else 'Normal'
         return final_label
-
-
 
 def sorting_key(filename):
     match = re.search(r'p_(\d+).jpg', filename)
@@ -6084,720 +4102,7 @@ def BPM(rpeaks):
                 HRV = hrv_diff
         return round(mean_rr/10), HRV
 
-
-
-class FilterSignal_MI:
-
-    def __init__(self, ecg_signal:np.array, fs:int = 200, MI:bool=False):
-        self.ecg_signal = ecg_signal
-        self.fs = fs
-        self.MI = MI
-
-    def baseline_construction_200(self, ecg_signal, kernel_size=131):
-        s_corrected = signal.detrend(ecg_signal)
-        baseline_corrected = s_corrected - signal.medfilt(s_corrected, kernel_size)
-        return baseline_corrected
-
-    def baseline_als(self, file, lam, p, niter=10):
-        L = len(file)
-        D = sparse.csc_matrix(np.diff(np.eye(L), 2))
-        w = np.ones(L)
-        for i in range(niter):
-            W = sparse.spdiags(w, 0, L, L)
-            Z = W + lam * D.dot(D.transpose())
-            z = spsolve(Z, w*file)
-            w = p * (file > z) + (1-p) * (file < z)
-        return z
-
-    def baseline_construction_250(self, ecg_signal ,kernel_size=131):
-        als_baseline = self.baseline_als(ecg_signal, 16**5, 0.01) 
-        s_als = self.ecg_signal - als_baseline
-        s_corrected = signal.detrend(s_als)
-        corrected_baseline = s_corrected - medfilt(s_corrected, kernel_size)
-        return corrected_baseline
-
-    def lowpass(self, ecg_signal, cutoff=0.3):
-        b, a = signal.butter(3, cutoff, btype='lowpass', analog=False)
-        low_passed = signal.filtfilt(b, a, ecg_signal)
-        return low_passed
-    
-    def get_data(self):
-        if self.fs == 200:
-            baseline_signal = self.baseline_construction_200(self.ecg_signal, kernel_size = 101)
-            lowpass_signal = self.lowpass(baseline_signal, cutoff = 0.3)
-        elif self.fs == 250:
-            baseline_signal = self.baseline_construction_250(self.ecg_signal, kernel_size = 131)
-            lowpass_signal = self.lowpass(baseline_signal, cutoff = 0.25)
-        elif self.fs == 360:
-            baseline_signal = self.baseline_construction_200(self.ecg_signal, kernel_size = 151)
-            lowpass_signal = self.lowpass(baseline_signal, cutoff = 0.2)
-        elif self.fs == 1000:
-            baseline_signal = self.baseline_construction_200(self.ecg_signal, kernel_size = 399)
-            lowpass_signal = self.lowpass(baseline_signal, cutoff = 0.05)
-        elif self.fs == 128:
-            baseline_signal = self.baseline_construction_200(self.ecg_signal, kernel_size = 101)
-            lowpass_signal = self.lowpass(baseline_signal, cutoff = 0.5)
-        return baseline_signal, lowpass_signal
-
-# R peak detection using biosppy
-class RPeakDetection_MI:
-    def __init__(self, baseline_signal, fs = 200):
-        self.baseline_signal = baseline_signal
-        self.fs = fs
-        
-    def butter_bandpass(self, lowcut, highcut, fs, order=5):
-        nyq = 0.5 * fs
-        low = lowcut / nyq
-        high = highcut / nyq
-        b, a = butter(order, [low, high], btype='band')
-        return b, a
-
-    def butter_bandpass_filter(self, data, lowcut, highcut, fs, order=5):
-        b, a = self.butter_bandpass(lowcut, highcut, fs, order=order)
-        y = filtfilt(b, a, data)
-        return y
-
-    def find_r_peak(self):
-        lowcut = 0.5
-        highcut = 50.0
-        filtered_signal = self.butter_bandpass_filter(self.baseline_signal, lowcut, highcut, self.fs, order=6)
-        # Step 3: R-Peak Detection
-        out = hami.hamilton_segmenter(filtered_signal, sampling_rate=self.fs)
-        rpeaks = hami.correct_rpeaks(filtered_signal, out[0], sampling_rate=self.fs, tol=0.1)
-        r_peaks = rpeaks[0].tolist()
-        return r_peaks
-
-# PQRST peak detection
-# class PQRSTDetection_MI:
-#     def __init__(self, baseline_signal:np.ndarray, fs:int=200, thres:float=0.5, 
-#                  lp_thres:float=0.2, rr_thres:float=0.12, width:tuple=(5, 50), MI:bool=False):
-#         self.baseline_signal = baseline_signal
-#         self.fs = fs
-#         self.thres = thres
-#         self.lp_thres = lp_thres
-#         self.rr_thres = rr_thres
-#         self.width = width
-#         self.MI = MI
-
-#     def find_s_index(self, d):
-#         d = int(d)+1
-#         s = []
-#         for i in self.r_index:
-#             if i == len(self.baseline_signal):
-#                 s.append(i)
-#                 continue
-#             elif i+d<=len(self.baseline_signal):
-#                 s_array = self.baseline_signal[i:i+d]
-#             else:
-#                 s_array = self.baseline_signal[i:]
-#             if self.baseline_signal[i] > 0:
-#                 s_index = i+np.where(s_array == min(s_array))[0][0]
-#             else:
-#                 s_index = i+np.where(s_array == max(s_array))[0][0]
-#                 if abs(s_index - i) < d/2:
-#                     s_index_ = i+np.where(s_array == min(s_array))[0][0]
-#                     if abs(s_index_ - i) > d/2:
-#                         s_index = s_index_
-#             s.append(s_index)
-#         return np.sort(s)
-
-#     def find_q_index(self, d):
-#         q = []
-#         for i in self.r_index:
-#             q_ = []
-#             if i == 0:
-#                 q.append(i)
-#                 continue
-#             if self.baseline_signal[i] > 0:
-#                 c = i
-#                 while c > 0 and self.baseline_signal[c-1] < self.baseline_signal[c]:
-#                     c -= 1                  
-#                 if self.baseline_signal[i] * 0.01 > self.baseline_signal[c] or self.baseline_signal[c] < 0 or c == 0:
-#                     if abs(i-c) <= d:
-#                         q.append(c)
-#                         continue
-#                     else:
-#                         q_.append(c)
-#                 while c > 0:
-#                     while c > 0 and self.baseline_signal[c-1] > self.baseline_signal[c]:
-#                         c -= 1
-#                     # q_.append(c)
-#                     while c > 0 and self.baseline_signal[c-1] < self.baseline_signal[c]:
-#                         c -= 1
-#                     if q_ and q_[-1] == c:
-#                         break
-#                     q_.append(c)
-#                     if self.baseline_signal[i] * 0.01 > self.baseline_signal[c] or self.baseline_signal[c] < 0 or c == 0:
-#                         break
-#             else:
-#                 c = i
-#                 while c > 0 and self.baseline_signal[c-1] > self.baseline_signal[c]:
-#                     c -= 1
-#                 if self.baseline_signal[i] * 0.01 < self.baseline_signal[c] or self.baseline_signal[c] > 0 or c == 0:
-#                     if abs(i-c) <= d:
-#                         q.append(c)
-#                         continue
-#                     else:
-#                         q_.append(c)
-#                 while c > 0:
-#                     while c > 0 and self.baseline_signal[c-1] < self.baseline_signal[c]:
-#                         c -= 1
-#                     # q_.append(c)
-#                     while c > 0 and self.baseline_signal[c-1] > self.baseline_signal[c]:
-#                         c -= 1
-#                     if q_ and q_[-1] == c:
-#                         break
-#                     q_.append(c)
-#                     if self.baseline_signal[i] * 0.01 < self.baseline_signal[c] or self.baseline_signal[c] > 0 or c == 0:
-#                         break
-#             if q_:
-#                 a = 0
-#                 for _q in q_[::-1]:
-#                     if abs(i-_q) <= d:
-#                         a = 1
-#                         q.append(_q)
-#                         break
-#                 if a == 0:
-#                     q.append(q_[0])
-#         return np.sort(q)
-
-#     def fir_lowpass_filter(self, data, cutoff, numtaps=21):
-#         b = firwin(numtaps, cutoff)
-#         y = signal.convolve(data, b, mode="same")
-#         return y
-
-#     def pt_detection_1(self):
-#         max_signal = max(self.baseline_signal)/100
-#         pt = []
-#         p_t = []
-#         for i in range (0, len(self.r_index)-1):
-#             aoi = self.baseline_signal[self.s_index[i]:self.q_index[i+1]]
-#             max_signal = max(self.baseline_signal)/100
-#             low = self.fir_lowpass_filter(aoi,self.lp_thres,30)
-#             if self.baseline_signal[self.r_index[i]]<0:
-#                 max_signal=0.05
-#             else:
-#                 max_signal=max_signal
-#             if aoi.any():
-#                 peaks,_ = find_peaks(low,height=max_signal,width=self.width)
-#                 peaks1=peaks+(self.s_index[i])
-#             else:
-#                 peaks1 = [0]
-#             p_t.append(list(peaks1))
-#             pt.extend(list(peaks1))
-#             for i in range (len(p_t)):
-#                 if not p_t[i]:
-#                     p_t[i] = [0]
-#         return pt, p_t
-
-#     def pt_detection_2(self):
-#         pt = []
-#         p_t = []
-#         for i in range (0, len(self.r_index)-1):
-#             aoi = self.baseline_signal[self.s_index[i]:self.q_index[i+1]]
-#             if aoi.any():
-#                 low = self.fir_lowpass_filter(aoi,self.lp_thres,30)
-#                 if self.baseline_signal[self.r_index[i]]<0:
-#                     max_signal=0.05
-#                 else:
-#                     max_signal= max(low)*0.2
-#                 if aoi.any():
-#                     peaks,_ = find_peaks(low,height=max_signal,width=self.width)
-#                     peaks1=peaks+(self.s_index[i])
-#                 else:
-#                     peaks1 = [0]
-#                 p_t.append(list(peaks1))
-#                 pt.extend(list(peaks1))
-#                 for i in range (len(p_t)):
-#                     if not p_t[i]:
-#                         p_t[i] = [0]
-#             else:
-#                 p_t.append([0])
-#         return pt, p_t
-
-#     def pt_detection_3(self):
-#         pt = []
-#         p_t = []
-#         for i in range (0, len(self.r_index)-1):
-#             aoi = self.baseline_signal[self.s_index[i]:self.q_index[i+1]]
-#             low = self.fir_lowpass_filter(aoi,self.lp_thres,30)
-#             if aoi.any():
-#                 peaks,_ = find_peaks(low,prominence=0.05,width=self.width)
-#                 peaks1=peaks+(self.s_index[i])
-#             else:
-#                 peaks1 = [0]
-#             p_t.append(list(peaks1))
-#             pt.extend(list(peaks1))
-#             for i in range (len(p_t)):
-#                 if not p_t[i]:
-#                     p_t[i] = [0]
-
-#         return pt, p_t
-
-#     def pt_detection_4(self):
-#         def all_peaks_7(arr):
-#             sign_arr = np.sign(np.diff(arr))
-#             pos = np.where(np.diff(sign_arr) == -2)[0] + 1
-#             neg = np.where(np.diff(sign_arr) == 2)[0] + 1
-#             all_peaks = np.sort(np.concatenate((pos, neg)))
-#             al = all_peaks.tolist()
-#             diff = {}
-#             P, Pa, Pb = [], [], []
-#             if len(al) > 2:
-#                 for p in pos:
-#                     index = al.index(p)
-#                     if index == 0:
-#                         m, n, o = arr[0], arr[al[index]], arr[al[index+1]]
-#                     elif index == len(al)-1:
-#                         m, n, o = arr[al[index-1]], arr[al[index]], arr[-1]
-#                     else:
-#                         m, n, o = arr[al[index-1]], arr[al[index]], arr[al[index+1]]
-#                     diff[p] = [abs(n-m), abs(n-o)]
-#                 th = np.mean([np.mean([v, m]) for v, m in diff.values()])*.66
-#                 for p, (a, b) in diff.items():
-#                     if a >= th and b >= th:
-#                         P.append(p)
-#                         continue
-#                     if a >= th and not Pa:
-#                         Pa.append(p)
-#                     elif a >= th and arr[p] > arr[Pa[-1]] and np.where(pos==Pa[-1])[0]+1 == np.where(pos==p)[0]:
-#                         Pa[-1] = p
-#                     elif a >= th:
-#                         Pa.append(p)
-#                     if b >= th and not Pb:
-#                         Pb.append(p)
-#                     elif b >= th and arr[p] < arr[Pb[-1]] and np.where(pos==Pb[-1])[0]+1 == np.where(pos==p)[0]:
-#                         Pb[-1] = p
-#                     elif b >= th:
-#                         Pb.append(p)
-#                 if len(pos)>1:
-#                     for i in range(1, len(pos)):
-#                         m, n = pos[i-1], pos[i]
-#                         if m in Pa and n in Pb:
-#                             P.append(m) if arr[m] > arr[n] else P.append(n)
-#                 # if Pa and Pa[-1] == pos[-1]:
-#                 #     P.append(Pa[-1])
-#                 # if Pb and Pb[0] == pos[0]:
-#                 #     P.append(Pb[0])
-#             else:
-#                 P = pos
-#             return np.sort(P)
-#         pt, p_t = [], []
-#         for i in range(1, len(self.r_index)):
-#             q0, r0, s0 = self.q_index[i - 1], self.r_index[i - 1], self.s_index[i - 1]
-#             q1, r1, s1 = self.q_index[i], self.r_index[i], self.s_index[i]
-#             arr = self.baseline_signal[s0+7:q1-7]
-#             peaks = list(all_peaks_7(arr) + s0 + 7) 
-#             if peaks:
-#                 pt.extend(peaks)
-#                 p_t.append(peaks)
-#             else:
-#                 p_t.append([0])
-#         return pt, p_t
-
-#     def find_pt(self):
-#         _, p_t1 = self.pt_detection_1()
-#         _, p_t2 = self.pt_detection_2()
-#         _, p_t3 = self.pt_detection_3()
-#         _, p_t4 = self.pt_detection_4() 
-#         pt = []
-#         p_t = []
-#         for i in range(len(p_t1)):
-#             _ = []
-#             for _pt in set(p_t1[i]+p_t2[i]+p_t3[i]+p_t4[i]):
-#                 count = 0
-#                 if any(val in p_t1[i] for val in range (_pt-2,_pt+3)):
-#                     count += 1
-#                 if any(val in p_t2[i] for val in range (_pt-2,_pt+3)):
-#                     count += 1
-#                 if any(val in p_t3[i] for val in range (_pt-2,_pt+3)):
-#                     count += 1
-#                 if any(val in p_t4[i] for val in range (_pt-2,_pt+3)):
-#                     count += 1
-#                 if count >= 3:
-#                     _.append(_pt)
-#                 _.sort()
-#             if _:
-#                 p_t.append(_)
-#             else:
-#                 p_t.append([0])
-#         result = []
-#         for sublist in p_t:
-#             temp = [sublist[0]]
-#             for i in range(1, len(sublist)):
-#                 if abs(sublist[i] - sublist[i-1]) > 5:
-#                     temp.append(sublist[i])
-#                 else:
-#                     temp[-1] = sublist[i]  
-#             if temp:
-#                 result.append(temp)
-#                 pt.extend(temp)
-#             else:
-#                 result.append([0])
-#         p_t = result
-#         return p_t, pt
-    
-#     def find_pt_for_MI(self, ecg_signal, r_index, q_index, s_index):
-#         def peaks_find(arr, c):
-#             pe, _ = find_peaks(arr, height=max(arr)*(1/c))
-#             c += 1
-#             if c == 10 or len(pe) >= 2:
-#                 return pe
-#             return peaks_find(arr, c)
-#         c = 1
-#         pt, p_t = [], []
-#         for i in range(1, len(r_index)):
-#             q0, r0, s0 = q_index[i - 1], r_index[i - 1], s_index[i - 1]
-#             q1, r1, s1 = q_index[i], r_index[i], s_index[i]
-#             arr = ecg_signal[s0:q1]
-#             if arr.any():
-#                 peaks = peaks_find(arr, c)
-#                 peaks = list(peaks + s0 )
-                
-#                 if peaks:
-#                     pt.extend(peaks)
-#                     p_t.append(peaks)
-#                 else:
-#                     p_t.append([0])
-#             else:
-#                 p_t.append([0])
-#         return p_t, np.asarray(pt)
-    
-#     def inverted_t(self, ecg_signal, r_index, q_index, s_index):
-#         data = []
-#         T_inverse_index = []
-#         c = 0
-#         try:
-#             for j in range (0, len(s_index)-1):
-#                 t = ecg_signal[s_index[j]:q_index[j+1]]
-#                 t_len = len(t)
-#                 for k in range (0,t_len):
-#                     data.append(t[k])
-#                 max_d = max(data)
-#                 min_d = min(data)       
-#                 max_id = data.index(max_d)
-#                 min_id = data.index(min_d)
-#                 if max_id>=80 or max_id==0:
-#                     if  ecg_signal[s_index[j]]>min_d:
-#                         t_inverse = s_index[j]+min_id
-#                         mid = min_id
-#                         if 15<mid<70 and ((q_index[j+1] - r_index[j])- min_id>50):
-#                             T_inverse_index.append(t_inverse)
-#                             c += 1
-#                         else:
-#                             pass
-#                 elif max_id< 80  and  (max_d >(ecg_signal[s_index[j]] + ecg_signal[s_index[j]]*0.1)):
-#                     t_inverse = s_index[j]+min_id
-#                     mid = min_id
-#                     if 15<mid<65 and ((q_index[j+1] - r_index[j])- min_id>50):
-#                         T_inverse_index.append(t_inverse)
-#                         c += 1
-#                     else:
-#                         pass            
-#                 elif max_id<80:
-#                     T_inverse = (abs(ecg_signal[min_id+s_index[j]])- abs(ecg_signal[s_index[j]]))
-#                     T_positive = (abs(ecg_signal[max_id+s_index[j]])- abs(ecg_signal[s_index[j]]))
-#                     if T_inverse>T_positive:
-#                         t_inverse = s_index[j]+min_id
-#                         mid = min_id
-#                         if 15<mid<65 and ((q_index[j+1] - r_index[j])- min_id>50):
-#                             T_inverse_index.append(t_inverse)
-#                             c += 1
-#                         else:
-#                             pass                
-#                 else:
-#                     pass
-#                 data.clear()
-#         except: pass
-#         if c>=(len(r_index)/2):
-#             label = "T Inverted"
-#         else:
-#             label = "Normal"
-#         return T_inverse_index
-
-#     def segricate_p_t_pr_inerval(self):
-#         diff_arr = ((np.diff(self.r_index)*self.thres)/self.fs).tolist()
-#         t_peaks_list, p_peaks_list, pr_interval, extra_peaks_list = [], [], [], []
-#         for i in range(len(self.p_t)):
-#             p_dis = (self.r_index[i+1]-self.p_t[i][-1])/self.fs
-#             t_dis = (self.r_index[i+1]-self.p_t[i][0])/self.fs
-#             threshold = diff_arr[i]
-#             if t_dis > threshold and (self.p_t[i][0]>self.r_index[i]): 
-#                 t_peaks_list.append(self.p_t[i][0])
-#             else:
-#                 t_peaks_list.append(0)
-#             if p_dis <= threshold: 
-#                 p_peaks_list.append(self.p_t[i][-1])
-#                 pr_interval.append(p_dis*self.fs)
-#             else:
-#                 p_peaks_list.append(0)
-#             if len(self.p_t[i])>0:
-#                 if self.p_t[i][0] in t_peaks_list:
-#                     if self.p_t[i][-1] in p_peaks_list:
-#                         extra_peaks_list.extend(self.p_t[i][1:-1])
-#                     else:
-#                         extra_peaks_list.extend(self.p_t[i][1:])
-#                 elif self.p_t[i][-1] in p_peaks_list:
-#                     extra_peaks_list.extend(self.p_t[i][:-1])
-#                 else:
-#                     extra_peaks_list.extend(self.p_t[i])
-
-#         p_label, pr_label = "", ""
-#         if self.thres >= 0.5 and p_peaks_list and len(p_peaks_list)>2:
-#             pp_intervals = np.diff(p_peaks_list)
-#             pp_std = np.std(pp_intervals)
-#             pp_mean = np.mean(pp_intervals)
-#             threshold = 0.12 * pp_mean
-#             if pp_std <= threshold:
-#                 p_label = "Constanat"
-#             else:
-#                 p_label = "Not Constant"
-            
-#             count=0
-#             for i in pr_interval:
-#                 if round(np.mean(pr_interval)*0.75) <= i <= round(np.mean(pr_interval)*1.25):
-#                     count +=1
-#             if len(pr_interval) != 0: 
-#                 per = count/len(pr_interval)
-#                 pr_label = 'Not Constant' if per<=0.7 else 'Constant'
-#         data = {'T_Index':t_peaks_list, 
-#                 'P_Index':p_peaks_list, 
-#                 'PR_Interval':pr_interval, 
-#                 'P_Label':p_label, 
-#                 'PR_label':pr_label,
-#                 'Extra_Peaks':extra_peaks_list}
-#         return data
-    
-#     def find_new_q_index(self, ecg, R_index, d):
-#         q = []
-#         for i in R_index:
-#             q_ = []
-#             if i == 0:
-#                 q.append(i)
-#                 continue
-#             if ecg[i] > 0:
-#                 c = i
-#                 while c > 0 and ecg[c-1] < ecg[c]:
-#                     c -= 1                  
-#                 if ecg[i] * 0.01 > ecg[c] or ecg[c] < 0 or c == 0:
-#                     if abs(i-c) <= d:
-#                         q.append(c)
-#                         continue
-#                     else:
-#                         q_.append(c)
-#                 while c > 0:
-#                     while c > 0 and ecg[c-1] > ecg[c]:
-#                         c -= 1
-#                     # q_.append(c)
-#                     while c > 0 and ecg[c-1] < ecg[c]:
-#                         c -= 1
-#                     if q_ and q_[-1] == c:
-#                         break
-#                     q_.append(c)
-#                     if ecg[i] * 0.01 > ecg[c] or ecg[c] < 0 or c == 0:
-#                         break
-#             else:
-#                 c = i
-#                 while c > 0 and ecg[c-1] > ecg[c]:
-#                     c -= 1
-#                 if ecg[i] * 0.01 < ecg[c] or ecg[c] > 0 or c == 0:
-#                     if abs(i-c) <= d:
-#                         q.append(c)
-#                         continue
-#                     else:
-#                         q_.append(c)
-#                 while c > 0:
-#                     while c > 0 and ecg[c-1] < ecg[c]:
-#                         c -= 1
-#                     # q_.append(c)
-#                     while c > 0 and ecg[c-1] > ecg[c]:
-#                         c -= 1
-#                     if q_ and q_[-1] == c:
-#                         break
-#                     q_.append(c)
-#                     if ecg[i] * 0.01 < ecg[c] or ecg[c] > 0 or c == 0:
-#                         break
-#             if q_:
-#                 a = 0
-#                 for _q in q_[::-1]:
-#                     if abs(i-_q) <= d:
-#                         a = 1
-#                         q.append(_q)
-#                         break
-#                 if a == 0:
-#                     q.append(q_[0])
-#         return np.sort(q)
-
-    
-
-#     def get_pqrst(self):
-
-#         self.r_index = RPeakDetection_MI(self.baseline_signal, self.fs).find_r_peak()
-#         sdiff, qdiff, td = int(self.fs * 0.115), int(self.fs * 0.08), int(self.fs * 0.18)
-#         self.s_index = self.find_s_index(sdiff) # self.baseline_signal,self.r_index,
-#         self.q_index = self.find_new_q_index(self.baseline_signal, self.r_index, qdiff)
-        
-#         self.p_t, self.pt = self.find_pt()
-#         self.data_ = self.segricate_p_t_pr_inerval()
-#         self.T_index = self.data_['T_Index']
-#         self.P_index = self.data_['P_Index']
-#         self.T_inverse = self.inverted_t(self.baseline_signal, self.r_index, self.q_index, self.s_index)
-#         try:
-#             signal_dwt, waves_dwt = nk.ecg_delineate(self.baseline_signal, self.r_index, sampling_rate=self.fs, method="dwt")
-#             self.Tonsets = np.where(np.isnan(waves_dwt['ECG_T_Onsets']), 0, waves_dwt['ECG_T_Onsets']).astype('int64').tolist()
-#         except:   
-#             print("---------------------- something wrong ------------------------")
-  
-#             self.Tonsets = []
-
-#         data={
-#             "Rpeaks":self.r_index,
-#             "Speaks": self.s_index,
-#             "Qpeaks": self.q_index,
-#             "Tpeaks": self.T_index,
-#             "Ppeaks": self.P_index,
-#             "Tonset": self.Tonsets,
-#             # "Jpeaks": self.J_index,
-#             "Tinverse": self.T_inverse,
-            
-#         }
-#         return data
-
-# # Find ST segmnet (ST Segment Elevation, ST Segment Depression(downsloping, upsloping, horizontal))
-# class STSegmentDetection:
-#     def __init__(self, baseline_signal:np.array, r_index, Speaks, Qpeaks, Tpeaks, Tonsets, fs:int=200):
-#         self.baseline_signal = baseline_signal
-#         self.r_index = r_index
-#         self.fs = fs
-#         self.Speaks = Speaks
-#         self.Qpeaks = Qpeaks
-#         self.Tpeaks = Tpeaks
-#         self.Tonsets = Tonsets
-
-#     def calculate_ST_segment_area(self, st_segment_data, q_peak_vol):
-#         if st_segment_data.shape[0] == 0:
-#             return 0
-#         isoelelectric_line = np.full(st_segment_data.shape[0], q_peak_vol)
-#         area = trapz(st_segment_data-isoelelectric_line)
-#         return area
-    
-#     def get_trend(self, data):
-#         upsloping = downsloping = horizontal = 0
-
-#         for i in range(1, len(data)):
-#             if data[i] > data[i-1]:
-#                 downsloping += 1
-#             elif data[i] < data[i-1]:
-#                 upsloping += 1
-#             else:
-#                 horizontal += 1
-
-#         if downsloping > upsloping and downsloping > horizontal:
-#             return "downsloping"
-#         elif upsloping > downsloping and upsloping > horizontal:
-#             return "upsloping"
-#         elif horizontal != 0: # ------------------ Added for NSTEMI ------------------
-#             return "horizontal"
-#         else:
-#             return "Abnormal"
-    
-#     # def most_frequent_string(self, arr):
-#     #     if len(arr) == 0: return "Abnormal"
-#     #     counter = Counter(arr)
-#     #     most_common = counter.most_common(2)
-#     #     if len(most_common) >= 2:
-#     #         if most_common[0][1] == most_common[1][1]: return most_common[0][0] if "ST" in most_common[0][0] else most_common[1][0]
-#     #     return most_common[0][0]
-
-#     def most_frequent_string(self, arr):
-#         counts = {}
-#         max_count = 0
-#         max_string = ""
-
-#         for string in arr:
-#             if string in counts:
-#                 counts[string] += 1
-#             else:
-#                 counts[string] = 1
-
-#         for string, count in counts.items():
-#             if count > max_count and string != "Abnormal":
-#                 max_count = count
-#                 max_string = string
-
-#         if max_count >= counts.get("Abnormal", 0) - 1:
-#             return max_string
-#         else:
-#             return "Abnormal"
-
-#     def get_data(self):
-#         data = {}
-#         data['label'] = "Abnormal"
-        
-#         st_areas = []
-#         st_depression, st_elevation, st_horizontal = [], [], []
-#         label_arr = []
-#         new_lim_tup = []
-#         st_line = []
-        
-#         for i in range(len(self.r_index)-1):
-#             s_peak,  q_peak = self.Speaks[i], self.Qpeaks[i]
-#             try:
-#                 t_on =  self.Tpeaks[i] if len(self.Tonsets) != 0 else self.Tonsets[i]
-#             except:
-#                 t_on = 0
-#             q_peak_vol = self.baseline_signal[q_peak]
-#             # ST_area = self.calculate_ST_segment_area(s_peak, t_on, q_peak_vol)
-#             st_seg_area = []
-#             if self.baseline_signal[s_peak] < 0:
-#                 for j in range(s_peak, self.r_index[i+1]):
-#                     if self.baseline_signal[j]<0:
-#                         st_seg_area.append(self.baseline_signal[j])
-#                     else:
-#                         break
-#             else:
-#                 st_seg_area = self.baseline_signal[s_peak:t_on]
-
-#             ST_area = self.calculate_ST_segment_area(np.array(st_seg_area), 0)
-#             st_areas.append((self.r_index[i], round(ST_area,2)))
-#             if ST_area > 0.1:
-#                 label = "ST Segment Elevation"
-#                 # st_elevation.append((self.r_index[i], round(ST_area,2)))
-#                 st_seg = self.baseline_signal[s_peak:t_on]
-#             elif ST_area < -2.5:
-#                 label = "ST Segment Depression"
-#             else:
-#                 label = "Abnormal"
-
-     
-#             if label == "ST Segment Depression":
-#                 new_lim = self.baseline_signal[self.r_index[i]:self.Tpeaks[i]+1]
-#                 q_peak_vol_round = round(q_peak_vol,2)
-#                 st_seg = [x for x in new_lim if x < 0]
-
-#                 st_change = [round(q_peak_vol-st_seg[i],3) for i in range(len(st_seg)//2)]
-#                 if len(st_change) != 0:
-#                     find_label = self.get_trend(st_change)
-#                     if find_label == "Abnormal":
-#                         label = "Abnormal"
-#                     else:
-#                         label += " " + find_label
-                
-#                 if len(st_change) == 0:
-#                     label = "Abnormal"
-                
-# ##                label += " " + self.get_trend(st_change)
-        
-#             label_arr.append(label)
-#         label = self.most_frequent_string(label_arr)
-#         data ={
-#             'label': label,
-#             'st_area': st_areas,
-#         }
-#         return data
-
 # ----------------------------------- MI detection model base -----------------------------------------------
-
 def prediction_model_mi(input_arr):
     classes = ['Noise', 'Normal', 'STDEP', 'STELE', 'TAB']
     input_arr = tf.io.decode_jpeg(tf.io.read_file(input_arr), channels=3)
@@ -6896,96 +4201,6 @@ def check_mi_model(all_leads_data, imageresource):
         mi_result = "T_wave_Abnormality"
     return mi_result
 
-
-
-
-
-#def data_convert_MI(sorted_data): # patient_id, path=None
-#    A = pd.DataFrame(sorted_data)[['dateTime', 'data']]
-#    try:
-#        tog_arr = 0
-#        temp_A = pd.DataFrame(sorted_data)[['data1', 'data5']]
-#        if temp_A['data1'][0]=="": tog_arr = 1
-#        A1 = temp_A['data1'].to_list()
-#        A5 = temp_A['data5'].to_list()
-#    except Exception as e:
-#        tog_arr = 1
-#    A2 = A['data'].to_list()
-#    
-#    l, l1, l5 = [], [], []
-#    data_dict = {"I":[],"II":[],"III":[],"aVR":[],"aVL":[],"aVF":[],"v5":[]} # "DateTime":[],
-#    if tog_arr == 0:
-#        for i in range(len(A2)):
-#            # d = A["dateTime"][i]
-#            d = datetime.datetime.fromtimestamp(A["dateTime"][i]/1000)
-#            # print(d)
-#            start = 0
-#            stop = 4
-#            kk= 0
-#            while True:
-#                l = A2[i][start:stop]
-#                l1 = A1[i][start:stop]
-#                l5 = A5[i][start:stop]
-#                
-#                high = l[2]+l[3]
-#                low = l[0]+ l[1]
-#                high1 = l1[2]+l1[3]
-#                low1 = l1[0]+ l1[1]
-#                high5 = l5[2]+l5[3]
-#                low5 = l5[0]+ l5[1]
-#
-#                highdec = int(str(high), 18)
-#                lowdec = int(str(low),18)
-#                val = (int(highdec)*256)+(int(lowdec))
-#                voltage2 = (4.6/4095)*val
-#                
-#                highdec1 = int(str(high1), 18)
-#                lowdec1 = int(str(low1),18)
-#                val1 = (int(highdec1)*256)+(int(lowdec1))
-#                voltage1 = (4.6/4095)*val1
-#                
-#                highdec5 = int(str(high5), 18)
-#                lowdec5 = int(str(low5),18)
-#                val5 = (int(highdec5)*256)+(int(lowdec5))
-#                voltage5 = (4.6/4095)*val5
-#                
-#                voltage3 = voltage2 - voltage1
-#                
-#                aVR = -(voltage1 + voltage2)  / 2
-#
-#                aVL = (voltage1 - voltage3) / 2
-#
-#                aVF = (voltage2 - voltage3)/ 2
-#                
-#                data_dict["I"].append(voltage1)
-#                data_dict["II"].append(voltage2)
-#                data_dict["III"].append(voltage3)
-#                data_dict["aVR"].append(aVR)
-#                data_dict["aVL"].append(aVL)
-#                data_dict["aVF"].append(aVF)
-#                data_dict["v5"].append(voltage5)
-#                
-#                # data_dict["DateTime"].append(d)
-#                start+=4
-#                stop+=4
-#                kk+=1
-#                if stop> len(A2[i]):
-#                    break
-#
-#    df = {}
-#    if tog_arr == 0:
-#        print("7 lead data")
-#        # print('I:', len(data_dict["I"]), "II:", len(data_dict["II"]),  "III:",len(data_dict["III"]),  "aVR:", len(data_dict["aVR"]),"aVL:", len(data_dict["aVL"]),  "aVF:", len(data_dict["aVF"]), "v5: ", len(data_dict["v5"]))
-#        df = pd.DataFrame(data_dict)
-#    else:
-#        print("Lead II data")
-#
-#    if tog_arr == 0:
-#        return df
-#
-#    return df
-#
-
 def data_convert_MI(sorted_data): # patient_id, path=None
     A = pd.DataFrame(sorted_data)[['dateTime', 'data']]
     try:
@@ -7060,17 +4275,13 @@ def data_convert_MI(sorted_data): # patient_id, path=None
         df = pd.DataFrame(data_dict)
     else:
         print("Lead II data")
- 
     if tog_arr == 0:
         return df
- 
     return df
 
 def rrirrAB(rpeaks):
     rpeak_diff = np.diff(rpeaks)
 
-    # rr_intervals = rpeak_diff/ 1000 # old
-    # percentage_diff = np.abs(np.diff(rr_intervals) / rr_intervals[:-1]) * 100
     mean_percentage_diff = irrgular_per_r = 0
     if len(rpeak_diff) >= 3:
         percentage_diff = np.abs(np.diff(rpeak_diff) / rpeak_diff[:-1]) * 1003
@@ -7080,7 +4291,6 @@ def rrirrAB(rpeaks):
         
     threshold = 50  # Adjust this threshold as needed
 
-    # if np.any(percentage_diff > threshold) 
     if (mean_percentage_diff > threshold)  and (irrgular_per_r > 40):
         print("Irregular R-R intervals detected. Possible AFib or AFL.")
         label = "IRREGULAR" # Possible AFib or AFL
@@ -7099,13 +4309,8 @@ def subscribe(client):
                 print("New Data Received")
                 global mycol,topic_y
                 start = time.time()
-##                decoded_message=str(msg.payload.decode("utf-8",errors="replace"))
-##                dd = json.dumps(item)
-                #dd = json.loads(item)
                 dd = item
                 rawdata = dd["data"]
-                
-                
                 try:
                     if dd["version"] == 2:
                         valueOfData = 23
@@ -7177,7 +4382,6 @@ def subscribe(client):
                             except:
                               print("rpmId not getting...")
                               pass
-    ##                        versionList.append(dd['data'][i]['version'])
                             try:
                               patientData = dd['patientData']
                             except:
@@ -7278,14 +4482,14 @@ def subscribe(client):
                         timetaken = int((DT2 - DT1).total_seconds())
                         print("timetaken:",timetaken)
                         loss_data = np.diff(datetimee)
-                        if timetaken<=2:
+                        if timetaken<4:
                             print("Data less than 2 second, half beat solution")
                         elif (loss_data > 60000).any():
                             print("Long Data Recording Found")
                         elif timetaken>50:
                             print("Data Greter than 50 second, Artifacts solution")
                         else:
-                            if (loss_data > 3500).any():
+                            if (loss_data > 800).any():
                                 result_data = [{"patient":dd["patient"],"HR":0,"starttime":mintime,"endtime":maxtime,"Arrhythmia":'Artifacts','kit':dd["kit"],'position':positionFinal,"beats":0,"RRInterval":0,"PRInterval":0,"QTInterval":0,"QRSComplex":0,"STseg":0,"PRseg":0,"Vbeats":0,"noOfPause":0,"ISOLATEDCOUNT":0,"COUPLETCOUNT":0,"TRIPLETCOUNT":0,"PACTRIPLETCOUNT":0,"PACCOUPLETCOUNT":0,"ISOPAC":0,"PACTOTALCOUNT":0,"trigger":trigger,"offline":True,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":[],"RR":0,"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming}]
                                 print("LOG:",result_data)
                                 client.publish(topic_y,json.dumps(result_data),qos=2)
@@ -7296,7 +4500,6 @@ def subscribe(client):
                                 print("LOG:",result_data)
                                 client.publish(topic_y,json.dumps(result_data),qos=2)
                                 
-        ##                        item = queue.pop()
                             elif dd['ecgPackage']=="Free":
                                 print("Free")
                                 try:
@@ -7837,7 +5040,7 @@ def subscribe(client):
                                                 print("AFIB_AFL issue",e)
                             
                                         if float(HR)<60 and result_data["Arrhythmia"]!="AFIB" and result_data["Arrhythmia"]!="AFL" and result_data["Arrhythmia"]!="ABNORMAL":
-                                            if(SACompare(SAf, 4500)) and (rrints == "IRREGULAR" or rrints == "REGULAR"):
+                                            if(SACompare(SAf, 5000)) and (rrints == "IRREGULAR" or rrints == "REGULAR"):
                                                 result_data.update({"Arrhythmia":'Long Pause'})
                                                 d1 = result_data
                                                 finddata.append(d1)
@@ -7867,10 +5070,10 @@ def subscribe(client):
 
 
 
-                                        if (SACompare(SAf, 4500)):
+                                        if (SACompare(SAf, 5000)):
                                             l=[]
                                             for x in SAf:
-                                                if x>=4500:
+                                                if x>=5000:
                                                     l.append(1)
                                                 else:
                                                     l.append(0)
@@ -7879,7 +5082,7 @@ def subscribe(client):
                                             else:
                                                 noofpause = 0
 
-                                            result_data.update({"Arrhythmia":'Long Pause',"noOfPause":noofpause,"noOfPauseList":[a/1000 for a in SAf if a>4500]})
+                                            result_data.update({"Arrhythmia":'Long Pause',"noOfPause":noofpause,"noOfPauseList":[a/1000 for a in SAf if a>3000]})
                                             d1 = result_data
                                             finddata.append(d1)
 
@@ -8704,7 +5907,6 @@ def subscribe(client):
                                         try:
                                             naMI = np.array(newdada)
                                             if int(HR)<100 and int(timetaken)>6 and int(version)==5 and rrint=="REGULAR":
-                                                #label_mi = process_signal(naMI, 200)
                                                 label_rlbbb = LBBB_RBBB(b_es,rpeaks,imageresource)
 
                                                 all_lead_data = data_convert_MI(sorted_data) #, path=save, patient_id
