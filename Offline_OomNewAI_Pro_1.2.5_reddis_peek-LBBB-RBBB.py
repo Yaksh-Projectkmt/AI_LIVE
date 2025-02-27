@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import random, 
+import random
 from paho.mqtt import client as mqtt_client
 import traceback
 import ast
@@ -597,38 +597,10 @@ def connect_mqtt() -> mqtt_client:
     client.connect(broker, port)
     return client
 
-# Baseline shifting and wandering 
-def moving_Average(file):
-    window_size = 10    
-    numbers_series = pd.Series(file)    
-    windows = numbers_series.rolling(window_size)
-    moving_averages = windows.mean()    
-    moving_averages_list = moving_averages.tolist()
-    final = moving_averages_list[window_size - 1:]
-    final_list = np.array(final)
-    return final_list
-
 def baseline_reconstruction(data, kernel_Size):
     s_corrected = signal.detrend(data)
     baseline_corrected = s_corrected - medfilt(s_corrected,kernel_Size)
     return baseline_corrected
-
-
-def baseline_beads(file):
-    fc = 0.0075
-    d = 1
-    r = 6
-    amp = 0.8
-    lam0 = 0.5 * amp
-    lam1 = 5 * amp
-    lam2 = 4 * amp
-    Nit = 15
-    pen = 'L1_v2'
-    signal_est, bg_est, cost = be.beads(file, d, fc, r, Nit, lam0, lam1, lam2, pen, conv=None)
-
-    x = file-signal_est-bg_est
-
-    return x
 
 def lowpass_11(file):
   b, a = signal.butter(3, 0.3, btype='lowpass', analog=False)
@@ -2518,58 +2490,6 @@ def wide_qrs_find(q_index, r_index, s_index, hr_count, fs=200):
     q_s_difference = [i/200 for i in difference]
     return np.array(pvc_index), q_s_difference
 
-
-def wide_qrs_find_PAC(q_index, r_index, s_index, hr_count, fs=200):
-    """The distance between the QRS complex's Q wave and S wave.
-
-    Args:
-        q_index (list): Q waves indices in an ECG signal
-        r_index (list): R-peak indices in an ECG signal
-        s_index (list): S waves indices in an ECG signal
-        fs (int, optional): sampling rate of the ECG signal, defaults to 200 (optional)
-
-    Returns:
-        array: the R-peak indices that correspond to wide QRS complexes in an ECG signal.
-    The function takes in three arrays as inputs: q_index, r_index, and s_index, which represent the
-    indices of the Q-wave onset, R-peak, and S-wave offset, respectively. The function loops through the
-    R-peak indices and calculates the difference between
-    """
-    max_indexs = 0
-    if hr_count <= 88:
-        ms = 0.19
-    else:
-        ms = 0.17
-    max_indexs = int(fs * ms)
-    pvc = []
-    difference = []
-    pvc_index = []
-    wide_qs_diff = []
-    for k in range(len(r_index)):
-        diff = s_index[k] - q_index[k]
-        difference.append(diff)
-        if max_indexs != 0:
-            if diff>=max_indexs:
-                pvc.append(r_index[k])
-
-    if hr_count <= 88:
-        wide_r_index_per = len(pvc)/ len(r_index)
-        if wide_r_index_per < 0.8:
-            pvc_index = np.array(pvc)
-        else:
-            ms = 0.12
-            max_indexs = int(fs * ms)
-            for k in range(len(r_index)):
-                diff = s_index[k] - q_index[k]
-                wide_qs_diff.append(diff)
-                if max_indexs != 0:
-                    if diff>=max_indexs:
-                        pvc_index.append(r_index[k])
-            difference = wide_qs_diff
-    else:
-        pvc_index = np.array(pvc) 
-    q_s_difference = [i/200 for i in difference]
-    return np.array(pvc_index), q_s_difference
-
 class FilterSignal:
     def __init__(self, ecg_signal, fs = 200):
         self.ecg_signal = ecg_signal
@@ -4352,6 +4272,7 @@ def subscribe(client):
                     patientData = {}
                     coordinates=[]
                     datalength = 0
+                    mobileBaterry = None
                     newlist1 = []
                     positionX = []
                     positionY = []
@@ -4370,7 +4291,11 @@ def subscribe(client):
                             except:
                               print("version not getting...")
                               pass
-                              
+                            try:
+                                mobileBaterry = dd['mobileBaterry']
+                            except:
+                                print("mobileBaterry not getting...")
+                                pass
                             try:
                               trigger = dd['trigger']
                             except:
@@ -4490,13 +4415,13 @@ def subscribe(client):
                             print("Data Greter than 50 second, Artifacts solution")
                         else:
                             if (loss_data > 800).any():
-                                result_data = [{"patient":dd["patient"],"HR":0,"starttime":mintime,"endtime":maxtime,"Arrhythmia":'Artifacts','kit':dd["kit"],'position':positionFinal,"beats":0,"RRInterval":0,"PRInterval":0,"QTInterval":0,"QRSComplex":0,"STseg":0,"PRseg":0,"Vbeats":0,"noOfPause":0,"ISOLATEDCOUNT":0,"COUPLETCOUNT":0,"TRIPLETCOUNT":0,"PACTRIPLETCOUNT":0,"PACCOUPLETCOUNT":0,"ISOPAC":0,"PACTOTALCOUNT":0,"trigger":trigger,"offline":True,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":[],"RR":0,"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming}]
+                                result_data = [{"patient":dd["patient"],"HR":0,"starttime":mintime,"endtime":maxtime,"Arrhythmia":'Artifacts','kit':dd["kit"],'position':positionFinal,"beats":0,"RRInterval":0,"PRInterval":0,"QTInterval":0,"QRSComplex":0,"STseg":0,"PRseg":0,"Vbeats":0,"noOfPause":0,"ISOLATEDCOUNT":0,"COUPLETCOUNT":0,"TRIPLETCOUNT":0,"PACTRIPLETCOUNT":0,"PACCOUPLETCOUNT":0,"ISOPAC":0,"PACTOTALCOUNT":0,"trigger":trigger,"offline":True,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":[],"RR":0,"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming,"mobileBaterry":mobileBaterry}]
                                 print("LOG:",result_data)
                                 client.publish(topic_y,json.dumps(result_data),qos=2)
 
                             elif final_output == "high_noise":
                                 print("GPT Output")
-                                result_data = [{"patient":dd["patient"],"HR":0,"starttime":mintime,"endtime":maxtime,"Arrhythmia":'Artifacts','kit':dd["kit"],'position':positionFinal,"beats":0,"RRInterval":0,"PRInterval":0,"QTInterval":0,"QRSComplex":0,"STseg":0,"PRseg":0,"Vbeats":0,"noOfPause":0,"ISOLATEDCOUNT":0,"COUPLETCOUNT":0,"TRIPLETCOUNT":0,"PACTRIPLETCOUNT":0,"PACCOUPLETCOUNT":0,"ISOPAC":0,"PACTOTALCOUNT":0,"trigger":trigger,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":[],"RR":0,"offline":True,"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming}]
+                                result_data = [{"patient":dd["patient"],"HR":0,"starttime":mintime,"endtime":maxtime,"Arrhythmia":'Artifacts','kit':dd["kit"],'position':positionFinal,"beats":0,"RRInterval":0,"PRInterval":0,"QTInterval":0,"QRSComplex":0,"STseg":0,"PRseg":0,"Vbeats":0,"noOfPause":0,"ISOLATEDCOUNT":0,"COUPLETCOUNT":0,"TRIPLETCOUNT":0,"PACTRIPLETCOUNT":0,"PACCOUPLETCOUNT":0,"ISOPAC":0,"PACTOTALCOUNT":0,"trigger":trigger,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":[],"RR":0,"offline":True,"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming,"mobileBaterry":mobileBaterry}]
                                 print("LOG:",result_data)
                                 client.publish(topic_y,json.dumps(result_data),qos=2)
                                 
@@ -4601,9 +4526,9 @@ def subscribe(client):
                                     rrint = rrirrAB(rpeaks)
                                     finddata=[]
                                     try:
-                                        result_data = {"patient":dd["patient"],"HR":str(HR),"starttime":mintime,"endtime":maxtime,"Arrhythmia":'','kit':dd["kit"],'position':positionFinal,"beats":len(rpeaks),"RRInterval":str(SAf[0]),"PRInterval":str(PRpeaks),"QTInterval":str(QTpeaks),"QRSComplex":str(SQpeaks),"STseg":str(STseg),"PRseg":str(PRseg),"noOfPause":0,"noOfPauseList":[],"ecgPackage":allarr,"trigger":trigger,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":hrv,"RR":br,"offline":True,"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming}
+                                        result_data = {"patient":dd["patient"],"HR":str(HR),"starttime":mintime,"endtime":maxtime,"Arrhythmia":'','kit':dd["kit"],'position':positionFinal,"beats":len(rpeaks),"RRInterval":str(SAf[0]),"PRInterval":str(PRpeaks),"QTInterval":str(QTpeaks),"QRSComplex":str(SQpeaks),"STseg":str(STseg),"PRseg":str(PRseg),"noOfPause":0,"noOfPauseList":[],"ecgPackage":allarr,"trigger":trigger,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":hrv,"RR":br,"offline":True,"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming,"mobileBaterry":mobileBaterry}
                                     except:
-                                        result_data = {"patient":dd["patient"],"HR":str(HR),"starttime":mintime,"endtime":maxtime,"Arrhythmia":'','kit':dd["kit"],'position':positionFinal,"beats":len(rpeaks),"RRInterval":str(0),"PRInterval":str(0),"QTInterval":str(0),"QRSComplex":str(0),"STseg":str(0),"PRseg":str(0),"noOfPause":0,"noOfPauseList":[],"ecgPackage":allarr,"trigger":trigger,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":hrv,"RR":br,"offline":True,"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming}
+                                        result_data = {"patient":dd["patient"],"HR":str(HR),"starttime":mintime,"endtime":maxtime,"Arrhythmia":'','kit':dd["kit"],'position':positionFinal,"beats":len(rpeaks),"RRInterval":str(0),"PRInterval":str(0),"QTInterval":str(0),"QRSComplex":str(0),"STseg":str(0),"PRseg":str(0),"noOfPause":0,"noOfPauseList":[],"ecgPackage":allarr,"trigger":trigger,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":hrv,"RR":br,"offline":True,"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming,"mobileBaterry":mobileBaterry}
 
 
                                     noise_cc = noise_check_again(naa)
@@ -4662,7 +4587,7 @@ def subscribe(client):
 
 
                                 except Exception as e:
-                                    result_data = [{"patient":dd["patient"],"HR":0,"starttime":mintime,"endtime":maxtime,"Arrhythmia":'Artifacts','kit':dd["kit"],'position':positionFinal,"beats":0,"RRInterval":0,"PRInterval":0,"QTInterval":0,"QRSComplex":0,"STseg":0,"PRseg":0,"Vbeats":0,"noOfPause":0,"ISOLATEDCOUNT":0,"COUPLETCOUNT":0,"TRIPLETCOUNT":0,"PACTRIPLETCOUNT":0,"PACCOUPLETCOUNT":0,"ISOPAC":0,"PACTOTALCOUNT":0,"trigger":trigger,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":[],"RR":0,"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming}]
+                                    result_data = [{"patient":dd["patient"],"HR":0,"starttime":mintime,"endtime":maxtime,"Arrhythmia":'Artifacts','kit':dd["kit"],'position':positionFinal,"beats":0,"RRInterval":0,"PRInterval":0,"QTInterval":0,"QRSComplex":0,"STseg":0,"PRseg":0,"Vbeats":0,"noOfPause":0,"ISOLATEDCOUNT":0,"COUPLETCOUNT":0,"TRIPLETCOUNT":0,"PACTRIPLETCOUNT":0,"PACCOUPLETCOUNT":0,"ISOPAC":0,"PACTOTALCOUNT":0,"trigger":trigger,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":[],"RR":0,"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming,"mobileBaterry":mobileBaterry}]
                                     print("LOG5:",result_data,e)
                                     client.publish(topic_y,json.dumps(result_data),qos=2)
 
@@ -4705,12 +4630,12 @@ def subscribe(client):
                                         try:
                                             HR = int(60*int(len(rpeaks))/(timetaken))
                                             if abs(timetaken)<5:
-                                                result_data = [{"patient":dd["patient"],"HR":0,"starttime":mintime,"endtime":maxtime,"Arrhythmia":'Artifacts','kit':dd["kit"],'position':positionFinal,"beats":0,"RRInterval":0,"PRInterval":0,"QTInterval":0,"QRSComplex":0,"STseg":0,"PRseg":0,"Vbeats":0,"noOfPause":0,"ISOLATEDCOUNT":0,"COUPLETCOUNT":0,"TRIPLETCOUNT":0,"PACTRIPLETCOUNT":0,"PACCOUPLETCOUNT":0,"ISOPAC":0,"PACTOTALCOUNT":0,"trigger":trigger,"offline":True,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":[],"RR":0,"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming}]
+                                                result_data = [{"patient":dd["patient"],"HR":0,"starttime":mintime,"endtime":maxtime,"Arrhythmia":'Artifacts','kit':dd["kit"],'position':positionFinal,"beats":0,"RRInterval":0,"PRInterval":0,"QTInterval":0,"QRSComplex":0,"STseg":0,"PRseg":0,"Vbeats":0,"noOfPause":0,"ISOLATEDCOUNT":0,"COUPLETCOUNT":0,"TRIPLETCOUNT":0,"PACTRIPLETCOUNT":0,"PACCOUPLETCOUNT":0,"ISOPAC":0,"PACTOTALCOUNT":0,"trigger":trigger,"offline":True,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":[],"RR":0,"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming,"mobileBaterry":mobileBaterry}]
                                                 print("LOG:",result_data)
                                                 client.publish(topic_y,json.dumps(result_data),qos=2)
             ##                                    item = queue.pop()
                                             else:
-                                                result_data = [{"patient":dd["patient"],"HR":int(HR),"starttime":mintime,"endtime":maxtime,"Arrhythmia":'VFIB','kit':dd["kit"],'position':positionFinal,"beats":0,"RRInterval":0,"PRInterval":0,"QTInterval":0,"QRSComplex":0,"STseg":0,"PRseg":0,"Vbeats":0,"noOfPause":0,"ISOLATEDCOUNT":0,"COUPLETCOUNT":0,"TRIPLETCOUNT":0,"PACTRIPLETCOUNT":0,"PACCOUPLETCOUNT":0,"ISOPAC":0,"PACTOTALCOUNT":0,"trigger":trigger,"offline":True,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":hrv,"RR":br,"templateBeat":beats,"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming}]
+                                                result_data = [{"patient":dd["patient"],"HR":int(HR),"starttime":mintime,"endtime":maxtime,"Arrhythmia":'VFIB','kit':dd["kit"],'position':positionFinal,"beats":0,"RRInterval":0,"PRInterval":0,"QTInterval":0,"QRSComplex":0,"STseg":0,"PRseg":0,"Vbeats":0,"noOfPause":0,"ISOLATEDCOUNT":0,"COUPLETCOUNT":0,"TRIPLETCOUNT":0,"PACTRIPLETCOUNT":0,"PACCOUPLETCOUNT":0,"ISOPAC":0,"PACTOTALCOUNT":0,"trigger":trigger,"offline":True,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":hrv,"RR":br,"templateBeat":beats,"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming,"mobileBaterry":mobileBaterry}]
                                                 print("LOG:",result_data)
                                                 for i in result_data:
                                                     x = mycol.insert_one(dict(i))
@@ -4718,7 +4643,7 @@ def subscribe(client):
                                                 client.publish(topic_y,json.dumps(result_data),qos=2)
             ##                                    item = queue.pop()
                                         except:
-                                                result_data = [{"patient":dd["patient"],"HR":0,"starttime":mintime,"endtime":maxtime,"Arrhythmia":'Artifacts','kit':dd["kit"],'position':positionFinal,"beats":0,"RRInterval":0,"PRInterval":0,"QTInterval":0,"QRSComplex":0,"STseg":0,"PRseg":0,"Vbeats":0,"noOfPause":0,"ISOLATEDCOUNT":0,"COUPLETCOUNT":0,"TRIPLETCOUNT":0,"PACTRIPLETCOUNT":0,"PACCOUPLETCOUNT":0,"ISOPAC":0,"PACTOTALCOUNT":0,"trigger":trigger,"offline":True,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":[],"RR":0,"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming}]                                                   
+                                                result_data = [{"patient":dd["patient"],"HR":0,"starttime":mintime,"endtime":maxtime,"Arrhythmia":'Artifacts','kit':dd["kit"],'position':positionFinal,"beats":0,"RRInterval":0,"PRInterval":0,"QTInterval":0,"QRSComplex":0,"STseg":0,"PRseg":0,"Vbeats":0,"noOfPause":0,"ISOLATEDCOUNT":0,"COUPLETCOUNT":0,"TRIPLETCOUNT":0,"PACTRIPLETCOUNT":0,"PACCOUPLETCOUNT":0,"ISOPAC":0,"PACTOTALCOUNT":0,"trigger":trigger,"offline":True,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":[],"RR":0,"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming,"mobileBaterry":mobileBaterry}]                                                   
                                                 print("LOG:",result_data)
                                                 client.publish(topic_y,json.dumps(result_data),qos=2)
 
@@ -4726,7 +4651,7 @@ def subscribe(client):
                                 elif final_label == "ASYS" and int(timetaken)>=5:
                                         mintime = min(datetimee)
                                         maxtime = max(datetimee)
-                                        result_data = [{"patient":dd["patient"],"HR":0,"starttime":mintime,"endtime":maxtime,"Arrhythmia":'ASYSTOLE','kit':dd["kit"],'position':positionFinal,"beats":0,"RRInterval":0,"PRInterval":0,"QTInterval":0,"QRSComplex":0,"STseg":0,"PRseg":0,"Vbeats":0,"noOfPause":0,"ISOLATEDCOUNT":0,"COUPLETCOUNT":0,"TRIPLETCOUNT":0,"PACTRIPLETCOUNT":0,"PACCOUPLETCOUNT":0,"ISOPAC":0,"PACTOTALCOUNT":0,"trigger":trigger,"offline":True,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":[],"RR":0,"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming}]
+                                        result_data = [{"patient":dd["patient"],"HR":0,"starttime":mintime,"endtime":maxtime,"Arrhythmia":'ASYSTOLE','kit':dd["kit"],'position':positionFinal,"beats":0,"RRInterval":0,"PRInterval":0,"QTInterval":0,"QRSComplex":0,"STseg":0,"PRseg":0,"Vbeats":0,"noOfPause":0,"ISOLATEDCOUNT":0,"COUPLETCOUNT":0,"TRIPLETCOUNT":0,"PACTRIPLETCOUNT":0,"PACCOUPLETCOUNT":0,"ISOPAC":0,"PACTOTALCOUNT":0,"trigger":trigger,"offline":True,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":[],"RR":0,"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming,"mobileBaterry":mobileBaterry}]
                                         print("LOG:",result_data)
                                         for i in result_data:
                                             x = mycol.insert_one(dict(i))
@@ -4756,31 +4681,31 @@ def subscribe(client):
                                                 if int(version) == 5:
                                                     label_rlbbb = LBBB_RBBB(na,rpeaks,imageresource)
                                                     if label_rlbbb=="LBBB":
-                                                        result_data = [{"patient":dd["patient"],"HR":str(HR),"starttime":mintime,"endtime":maxtime,"Arrhythmia":'Normal','kit':dd["kit"],'position':positionFinal,"beats":0,"RRInterval":0,"PRInterval":0,"QTInterval":0,"QRSComplex":0,"STseg":0,"PRseg":0,"Vbeats":0,"noOfPause":0,"ISOLATEDCOUNT":0,"COUPLETCOUNT":0,"TRIPLETCOUNT":0,"PACTRIPLETCOUNT":0,"PACCOUPLETCOUNT":0,"ISOPAC":0,"PACTOTALCOUNT":0,"trigger":trigger,"offline":True,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":hrv,"RR":br,"MI":"LBBB","templateBeat":beats,"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming}]
+                                                        result_data = [{"patient":dd["patient"],"HR":str(HR),"starttime":mintime,"endtime":maxtime,"Arrhythmia":'Normal','kit':dd["kit"],'position':positionFinal,"beats":0,"RRInterval":0,"PRInterval":0,"QTInterval":0,"QRSComplex":0,"STseg":0,"PRseg":0,"Vbeats":0,"noOfPause":0,"ISOLATEDCOUNT":0,"COUPLETCOUNT":0,"TRIPLETCOUNT":0,"PACTRIPLETCOUNT":0,"PACCOUPLETCOUNT":0,"ISOPAC":0,"PACTOTALCOUNT":0,"trigger":trigger,"offline":True,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":hrv,"RR":br,"MI":"LBBB","templateBeat":beats,"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming,"mobileBaterry":mobileBaterry}]
                                                         print("LOG:",result_data)
                                                         client.publish(topic_y,json.dumps(result_data),qos=2)
                                                     elif label_rlbbb=="RBBB":
-                                                        result_data = [{"patient":dd["patient"],"HR":str(HR),"starttime":mintime,"endtime":maxtime,"Arrhythmia":'Normal','kit':dd["kit"],'position':positionFinal,"beats":0,"RRInterval":0,"PRInterval":0,"QTInterval":0,"QRSComplex":0,"STseg":0,"PRseg":0,"Vbeats":0,"noOfPause":0,"ISOLATEDCOUNT":0,"COUPLETCOUNT":0,"TRIPLETCOUNT":0,"PACTRIPLETCOUNT":0,"PACCOUPLETCOUNT":0,"ISOPAC":0,"PACTOTALCOUNT":0,"trigger":trigger,"offline":True,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":hrv,"RR":br,"MI":"RBBB","templateBeat":beats,"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming}]
+                                                        result_data = [{"patient":dd["patient"],"HR":str(HR),"starttime":mintime,"endtime":maxtime,"Arrhythmia":'Normal','kit':dd["kit"],'position':positionFinal,"beats":0,"RRInterval":0,"PRInterval":0,"QTInterval":0,"QRSComplex":0,"STseg":0,"PRseg":0,"Vbeats":0,"noOfPause":0,"ISOLATEDCOUNT":0,"COUPLETCOUNT":0,"TRIPLETCOUNT":0,"PACTRIPLETCOUNT":0,"PACCOUPLETCOUNT":0,"ISOPAC":0,"PACTOTALCOUNT":0,"trigger":trigger,"offline":True,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":hrv,"RR":br,"MI":"RBBB","templateBeat":beats,"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming,"mobileBaterry":mobileBaterry}]
                                                         print("LOG:",result_data)
                                                         client.publish(topic_y,json.dumps(result_data),qos=2)
                                                     else:
-                                                        result_data = [{"patient":dd["patient"],"HR":str(HR),"starttime":mintime,"endtime":maxtime,"Arrhythmia":'Normal','kit':dd["kit"],'position':positionFinal,"beats":0,"RRInterval":0,"PRInterval":0,"QTInterval":0,"QRSComplex":0,"STseg":0,"PRseg":0,"Vbeats":0,"noOfPause":0,"ISOLATEDCOUNT":0,"COUPLETCOUNT":0,"TRIPLETCOUNT":0,"PACTRIPLETCOUNT":0,"PACCOUPLETCOUNT":0,"ISOPAC":0,"PACTOTALCOUNT":0,"trigger":trigger,"offline":True,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":hrv,"RR":br,"templateBeat":beats,"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming}]
+                                                        result_data = [{"patient":dd["patient"],"HR":str(HR),"starttime":mintime,"endtime":maxtime,"Arrhythmia":'Normal','kit':dd["kit"],'position':positionFinal,"beats":0,"RRInterval":0,"PRInterval":0,"QTInterval":0,"QRSComplex":0,"STseg":0,"PRseg":0,"Vbeats":0,"noOfPause":0,"ISOLATEDCOUNT":0,"COUPLETCOUNT":0,"TRIPLETCOUNT":0,"PACTRIPLETCOUNT":0,"PACCOUPLETCOUNT":0,"ISOPAC":0,"PACTOTALCOUNT":0,"trigger":trigger,"offline":True,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":hrv,"RR":br,"templateBeat":beats,"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming,"mobileBaterry":mobileBaterry}]
                                                         print("LOG:",result_data)
                                                         client.publish(topic_y,json.dumps(result_data),qos=2)
                                                 else:
-                                                    result_data = [{"patient":dd["patient"],"HR":str(HR),"starttime":mintime,"endtime":maxtime,"Arrhythmia":'Normal','kit':dd["kit"],'position':positionFinal,"beats":0,"RRInterval":0,"PRInterval":0,"QTInterval":0,"QRSComplex":0,"STseg":0,"PRseg":0,"Vbeats":0,"noOfPause":0,"ISOLATEDCOUNT":0,"COUPLETCOUNT":0,"TRIPLETCOUNT":0,"PACTRIPLETCOUNT":0,"PACCOUPLETCOUNT":0,"ISOPAC":0,"PACTOTALCOUNT":0,"trigger":trigger,"offline":True,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":hrv,"RR":br,"templateBeat":beats,"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming}]
+                                                    result_data = [{"patient":dd["patient"],"HR":str(HR),"starttime":mintime,"endtime":maxtime,"Arrhythmia":'Normal','kit':dd["kit"],'position':positionFinal,"beats":0,"RRInterval":0,"PRInterval":0,"QTInterval":0,"QRSComplex":0,"STseg":0,"PRseg":0,"Vbeats":0,"noOfPause":0,"ISOLATEDCOUNT":0,"COUPLETCOUNT":0,"TRIPLETCOUNT":0,"PACTRIPLETCOUNT":0,"PACCOUPLETCOUNT":0,"ISOPAC":0,"PACTOTALCOUNT":0,"trigger":trigger,"offline":True,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":hrv,"RR":br,"templateBeat":beats,"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming,"mobileBaterry":mobileBaterry}]
                                                     print("LOG:",result_data)
                                                     client.publish(topic_y,json.dumps(result_data),qos=2)
 
                                             else:
-                                                result_data = [{"patient":dd["patient"],"HR":0,"starttime":mintime,"endtime":maxtime,"Arrhythmia":'Artifacts','kit':dd["kit"],'position':positionFinal,"beats":0,"RRInterval":0,"PRInterval":0,"QTInterval":0,"QRSComplex":0,"STseg":0,"PRseg":0,"Vbeats":0,"noOfPause":0,"ISOLATEDCOUNT":0,"COUPLETCOUNT":0,"TRIPLETCOUNT":0,"PACTRIPLETCOUNT":0,"PACCOUPLETCOUNT":0,"ISOPAC":0,"PACTOTALCOUNT":0,"trigger":trigger,"offline":True,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":[],"RR":0,"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming}]
+                                                result_data = [{"patient":dd["patient"],"HR":0,"starttime":mintime,"endtime":maxtime,"Arrhythmia":'Artifacts','kit':dd["kit"],'position':positionFinal,"beats":0,"RRInterval":0,"PRInterval":0,"QTInterval":0,"QRSComplex":0,"STseg":0,"PRseg":0,"Vbeats":0,"noOfPause":0,"ISOLATEDCOUNT":0,"COUPLETCOUNT":0,"TRIPLETCOUNT":0,"PACTRIPLETCOUNT":0,"PACCOUPLETCOUNT":0,"ISOPAC":0,"PACTOTALCOUNT":0,"trigger":trigger,"offline":True,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":[],"RR":0,"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming,"mobileBaterry":mobileBaterry}]
                                                 print("LOG:",result_data)
                                                 client.publish(topic_y,json.dumps(result_data),qos=2)
         ##                                        item = queue.pop()
                                                 
 
                                         except:
-                                            result_data = [{"patient":dd["patient"],"HR":0,"starttime":mintime,"endtime":maxtime,"Arrhythmia":'Artifacts','kit':dd["kit"],'position':positionFinal,"beats":0,"RRInterval":0,"PRInterval":0,"QTInterval":0,"QRSComplex":0,"STseg":0,"PRseg":0,"Vbeats":0,"noOfPause":0,"ISOLATEDCOUNT":0,"COUPLETCOUNT":0,"TRIPLETCOUNT":0,"PACTRIPLETCOUNT":0,"PACCOUPLETCOUNT":0,"ISOPAC":0,"PACTOTALCOUNT":0,"trigger":trigger,"offline":True,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":[],"RR":0,"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming}]
+                                            result_data = [{"patient":dd["patient"],"HR":0,"starttime":mintime,"endtime":maxtime,"Arrhythmia":'Artifacts','kit':dd["kit"],'position':positionFinal,"beats":0,"RRInterval":0,"PRInterval":0,"QTInterval":0,"QRSComplex":0,"STseg":0,"PRseg":0,"Vbeats":0,"noOfPause":0,"ISOLATEDCOUNT":0,"COUPLETCOUNT":0,"TRIPLETCOUNT":0,"PACTRIPLETCOUNT":0,"PACCOUPLETCOUNT":0,"ISOPAC":0,"PACTOTALCOUNT":0,"trigger":trigger,"offline":True,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":[],"RR":0,"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming,"mobileBaterry":mobileBaterry}]
                                             print("LOG:",result_data)
                                             client.publish(topic_y,json.dumps(result_data),qos=2)
         ##                                    item = queue.pop()
@@ -4971,10 +4896,10 @@ def subscribe(client):
                                         print("HRRRR:",HR)
                                         OrHR = HR
                                         try:
-                                            result_data = {"patient":dd["patient"],"HR":str(HR),"starttime":mintime,"endtime":maxtime,"Arrhythmia":'','kit':dd["kit"],'position':positionFinal,"beats":len(rpeaks),"RRInterval":str(SAf[0]),"PRInterval":str(PRpeaks),"QTInterval":str(QTpeaks),"QRSComplex":str(SQpeaks),"STseg":str(STseg),"PRseg":str(PRseg),"Vbeats":0,"noOfPause":0,"ISOLATEDCOUNT":0,"COUPLETCOUNT":0,"TRIPLETCOUNT":0,"noOfPauseList":[],"ecgPackage":"All-Arrhythmia","trigger":trigger,"offline":True,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":hrv,"RR":br,"templateBeat":beats,"threeLatter":[],"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming}
+                                            result_data = {"patient":dd["patient"],"HR":str(HR),"starttime":mintime,"endtime":maxtime,"Arrhythmia":'','kit':dd["kit"],'position':positionFinal,"beats":len(rpeaks),"RRInterval":str(SAf[0]),"PRInterval":str(PRpeaks),"QTInterval":str(QTpeaks),"QRSComplex":str(SQpeaks),"STseg":str(STseg),"PRseg":str(PRseg),"Vbeats":0,"noOfPause":0,"ISOLATEDCOUNT":0,"COUPLETCOUNT":0,"TRIPLETCOUNT":0,"noOfPauseList":[],"ecgPackage":"All-Arrhythmia","trigger":trigger,"offline":True,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":hrv,"RR":br,"templateBeat":beats,"threeLatter":[],"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming,"mobileBaterry":mobileBaterry}
                                         except Exception as e:
                                             print(e)
-                                            result_data = {"patient":dd["patient"],"HR":str(HR),"starttime":mintime,"endtime":maxtime,"Arrhythmia":'','kit':dd["kit"],'position':0,"beats":len(rpeaks),"RRInterval":str(0),"PRInterval":str(0),"QTInterval":str(0),"QRSComplex":str(0),"STseg":str(0),"PRseg":str(0),"Vbeats":0,"noOfPause":0,"ISOLATEDCOUNT":0,"COUPLETCOUNT":0,"TRIPLETCOUNT":0,"noOfPauseList":[],"ecgPackage":"All-Arrhythmia","trigger":trigger,"offline":True,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":hrv,"RR":br,"templateBeat":beats,"threeLatter":[],"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming}
+                                            result_data = {"patient":dd["patient"],"HR":str(HR),"starttime":mintime,"endtime":maxtime,"Arrhythmia":'','kit':dd["kit"],'position':0,"beats":len(rpeaks),"RRInterval":str(0),"PRInterval":str(0),"QTInterval":str(0),"QRSComplex":str(0),"STseg":str(0),"PRseg":str(0),"Vbeats":0,"noOfPause":0,"ISOLATEDCOUNT":0,"COUPLETCOUNT":0,"TRIPLETCOUNT":0,"noOfPauseList":[],"ecgPackage":"All-Arrhythmia","trigger":trigger,"offline":True,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":hrv,"RR":br,"templateBeat":beats,"threeLatter":[],"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming,"mobileBaterry":mobileBaterry}
 
 
 
@@ -5977,7 +5902,7 @@ def subscribe(client):
                                             if int(result_data['HR'])<=20:
                                                 mintime = min(datetimee)
                                                 maxtime = max(datetimee)
-                                                result_data = [{"patient":dd["patient"],"HR":0,"starttime":mintime,"endtime":maxtime,"Arrhythmia":'Artifacts','kit':dd["kit"],'position':positionFinal,"beats":0,"RRInterval":0,"PRInterval":0,"QTInterval":0,"QRSComplex":0,"STseg":0,"PRseg":0,"Vbeats":0,"noOfPause":0,"ISOLATEDCOUNT":0,"COUPLETCOUNT":0,"TRIPLETCOUNT":0,"PACTRIPLETCOUNT":0,"PACCOUPLETCOUNT":0,"ISOPAC":0,"PACTOTALCOUNT":0,"trigger":trigger,"offline":True,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":[],"RR":0,"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming}]
+                                                result_data = [{"patient":dd["patient"],"HR":0,"starttime":mintime,"endtime":maxtime,"Arrhythmia":'Artifacts','kit':dd["kit"],'position':positionFinal,"beats":0,"RRInterval":0,"PRInterval":0,"QTInterval":0,"QRSComplex":0,"STseg":0,"PRseg":0,"Vbeats":0,"noOfPause":0,"ISOLATEDCOUNT":0,"COUPLETCOUNT":0,"TRIPLETCOUNT":0,"PACTRIPLETCOUNT":0,"PACCOUPLETCOUNT":0,"ISOPAC":0,"PACTOTALCOUNT":0,"trigger":trigger,"offline":True,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":[],"RR":0,"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming,"mobileBaterry":mobileBaterry}]
                                                 print("FinalLog:",result_data)
                                                 client.publish(topic_y,json.dumps(result_data),qos=2)
         ##                                        item = queue.pop()
@@ -6000,7 +5925,7 @@ def subscribe(client):
                                                 tb = traceback.extract_tb(e.__traceback__)
                                                 line_number = tb[-1][1]  # Extract the line number from the last entry in the traceback
                                                 print(f"Exception occurred on line {tb}: {tb}")
-                                                result_data = [{"patient":dd["patient"],"HR":0,"starttime":mintime,"endtime":maxtime,"Arrhythmia":'Artifacts','kit':dd["kit"],'position':positionFinal,"beats":0,"RRInterval":0,"PRInterval":0,"QTInterval":0,"QRSComplex":0,"STseg":0,"PRseg":0,"Vbeats":0,"noOfPause":0,"ISOLATEDCOUNT":0,"COUPLETCOUNT":0,"TRIPLETCOUNT":0,"PACTRIPLETCOUNT":0,"PACCOUPLETCOUNT":0,"ISOPAC":0,"PACTOTALCOUNT":0,"trigger":trigger,"offline":True,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":[],"RR":0,"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming}]                                                   
+                                                result_data = [{"patient":dd["patient"],"HR":0,"starttime":mintime,"endtime":maxtime,"Arrhythmia":'Artifacts','kit':dd["kit"],'position':positionFinal,"beats":0,"RRInterval":0,"PRInterval":0,"QTInterval":0,"QRSComplex":0,"STseg":0,"PRseg":0,"Vbeats":0,"noOfPause":0,"ISOLATEDCOUNT":0,"COUPLETCOUNT":0,"TRIPLETCOUNT":0,"PACTRIPLETCOUNT":0,"PACCOUPLETCOUNT":0,"ISOPAC":0,"PACTOTALCOUNT":0,"trigger":trigger,"offline":True,"rpmId":rpmId,"version":version,"patientData":patientData,"coordinates":coordinates,"datalength":datalength,"HRV":[],"RR":0,"battery":battery ,"memoryUtilized": memoryUtilized,"sysncDataReaming":sysncDataReaming,"mobileBaterry":mobileBaterry}]                                                   
                                                 print("LOG:",result_data)
                                                 client.publish(topic_y,json.dumps(result_data),qos=2)
     ##                                        client.on_message = on_message
